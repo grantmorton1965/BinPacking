@@ -12,6 +12,86 @@ from collections import defaultdict
 from io import BytesIO
 import base64
 
+# Custom CSS to enhance the look
+def add_custom_css():
+    st.markdown(
+        """
+        <style>
+        body {
+            background-color: #f0f2f6;
+            color: #333333;
+            font-family: 'Arial', sans-serif;
+        }
+        .main {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .report-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3 {
+            color: #004080;
+        }
+        h2 {
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 10px;
+            font-size: 22px;
+            margin-top: 20px;
+        }
+        .container-info {
+            font-weight: bold;
+            color: #006600;
+            margin-top: 10px;
+            font-size: 18px;
+        }
+        .instructions h3 {
+            color: #e69500;
+            font-size: 20px;
+        }
+        .instructions ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .instructions ul li {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+        .plot img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .best-fit {
+            font-weight: bold;
+            color: #cc3300;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #6c757d;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+add_custom_css()
+
 # Load the Excel file
 file_path = 'Optimization Problem.xlsx'
 packages_df = pd.read_excel(file_path, sheet_name='Packages')
@@ -92,14 +172,15 @@ if st.button("Optimize Packing"):
                 key = (pos, dim)
                 instructions[key] += 1
 
-        st.subheader(f"Container: {carton['Description']} ({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})")
-        st.write(f"**Package:** {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
-        st.write(f"**Total number of items fit:** {total_items_fit}")
-        st.write(f"**Percentage of volume utilized:** {volume_utilized_percentage:.2f}%")
+        st.markdown(f"<div class='report-container'><h2>Container: {carton['Description']} ({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})</h2>", unsafe_allow_html=True)
+        st.markdown(f"<div class='container-info'>Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='container-info'>Total number of items fit: {total_items_fit}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='container-info'>Percentage of volume utilized: {volume_utilized_percentage:.2f}%</div>", unsafe_allow_html=True)
 
-        st.write("### Packing Instructions:")
+        st.markdown("<div class='instructions'><h3>Packing Instructions:</h3><ul>", unsafe_allow_html=True)
         for (pos, dim), count in instructions.items():
-            st.write(f"- {count} items at position (x, y, z): ({pos[0]}, {pos[1]}, {pos[2]}) with dimensions (L x W x H): ({dim[0]} x {dim[1]} x {dim[2]})")
+            st.markdown(f"<li>{count} items at position (x, y, z): ({pos[0]}, {pos[1]}, {pos[2]}) with dimensions (L x W x H): ({dim[0]} x {dim[1]} x {dim[2]})</li>", unsafe_allow_html=True)
+        st.markdown("</ul></div></div>", unsafe_allow_html=True)
 
         fig = plt.figure(figsize=(6, 5))
         ax = fig.add_subplot(111, projection='3d')
@@ -119,7 +200,9 @@ if st.button("Optimize Packing"):
         st.pyplot(fig)
 
     if best_fit_container is not None:
-        st.write(f'### The best fit container is {best_fit_container["Description"]} with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%')
+        st.markdown(f"<div class='report-container'><div class='best-fit'>The best fit container is {best_fit_container['Description']} with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%</div></div>", unsafe_allow_html=True)
     else:
-        st.write('### No suitable container found.')
+        st.markdown("<div class='report-container'><div class='best-fit'>No suitable container found.</div></div>", unsafe_allow_html=True)
+
+st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
 
