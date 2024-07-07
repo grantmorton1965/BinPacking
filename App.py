@@ -40,11 +40,10 @@ def add_custom_css():
             margin-top: 20px;
             margin-bottom: 10px;
         }
-        .container-info {
-            font-weight: bold;
-            color: #006600;
-            margin-bottom: 10px;
+        .container-info, .container-info h2 {
             font-size: 18px;
+            font-weight: bold;
+            color: #333;
         }
         .plot-container {
             display: flex;
