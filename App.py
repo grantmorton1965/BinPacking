@@ -46,6 +46,17 @@ def add_custom_css():
             margin-bottom: 10px;
             font-size: 18px;
         }
+        .plot-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .plot-container h2, .plot-container .container-info {
+            margin: 0;
+            padding: 0;
+        }
         .plot {
             display: flex;
             justify-content: center;
@@ -127,8 +138,6 @@ if st.button("Optimize Packing"):
     best_fit_container = None
     best_fit_volume_utilized_percentage = 0
 
-    enlarge_plots = st.checkbox("Enlarge plots")  # Option to enlarge plots
-
     plot_index = 0
     plot_columns = []
 
@@ -159,8 +168,18 @@ if st.button("Optimize Packing"):
             best_fit_container = carton
             best_fit_volume_utilized_percentage = volume_utilized_percentage
 
+        # Display container information above the plot
+        plot_columns[plot_index % 3].markdown(f"""
+        <div class='plot-container'>
+            <h2>Container: {carton['Description']}</h2>
+            <div class='container-info'>Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})</div>
+            <div class='container-info'>Total number of items fit: {total_items_fit}</div>
+            <div class='container-info'>Percentage of volume utilized: {volume_utilized_percentage:.2f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+
         # Generate 3D plot
-        fig = plt.figure(figsize=(12, 10) if enlarge_plots else (6, 5))
+        fig = plt.figure(figsize=(6, 5))
         ax = fig.add_subplot(111, projection='3d')
         for b in packer.bins:
             for item in b.items:
@@ -176,16 +195,6 @@ if st.button("Optimize Packing"):
         ax.set_title(f'3D Visualization of Items in {carton["Description"]}')
         plt.tight_layout(pad=2.0)
         plot_columns[plot_index % 3].pyplot(fig)  # Display the plot in one of the three columns
-
-        # Display container information
-        plot_columns[plot_index % 3].markdown(f"""
-        <div class='report-container'>
-            <h2>Container: {carton['Description']}</h2>
-            <div class='container-info'>Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})</div>
-            <div class='container-info'>Total number of items fit: {total_items_fit}</div>
-            <div class='container-info'>Percentage of volume utilized: {volume_utilized_percentage:.2f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
 
         plot_index += 1
 
