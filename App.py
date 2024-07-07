@@ -29,27 +29,28 @@ def add_custom_css():
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .report-container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 40px;
+            margin-bottom: 40px;
         }
         h1, h2, h3 {
             color: #004080;
         }
         h2 {
-            border-bottom: 2px solid #0056b3;
-            padding-bottom: 10px;
             font-size: 24px;
             margin-top: 20px;
+            margin-bottom: 10px;
         }
         .container-info {
             font-weight: bold;
             color: #006600;
-            margin-top: 10px;
+            margin-bottom: 10px;
             font-size: 18px;
+        }
+        .plot {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
         }
         .plot img {
             display: block;
@@ -126,10 +127,15 @@ if st.button("Optimize Packing"):
     best_fit_container = None
     best_fit_volume_utilized_percentage = 0
 
-    columns = st.columns(2)  # Create two columns for side-by-side comparison
     enlarge_plots = st.checkbox("Enlarge plots")  # Option to enlarge plots
 
+    plot_index = 0
+    plot_columns = []
+
     for index, carton in cartons_df.iterrows():
+        if plot_index % 3 == 0:
+            plot_columns = st.columns(3)  # Create a new row of three columns
+
         storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
         packer = Packer()
         packer.add_bin(storage_unit)
@@ -169,10 +175,10 @@ if st.button("Optimize Packing"):
         ax.set_zlabel('Z axis')
         ax.set_title(f'3D Visualization of Items in {carton["Description"]}')
         plt.tight_layout(pad=2.0)
-        columns[index % 2].pyplot(fig)  # Display the plot in one of the two columns
+        plot_columns[plot_index % 3].pyplot(fig)  # Display the plot in one of the three columns
 
         # Display container information
-        columns[index % 2].markdown(f"""
+        plot_columns[plot_index % 3].markdown(f"""
         <div class='report-container'>
             <h2>Container: {carton['Description']}</h2>
             <div class='container-info'>Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})</div>
@@ -180,6 +186,8 @@ if st.button("Optimize Packing"):
             <div class='container-info'>Percentage of volume utilized: {volume_utilized_percentage:.2f}%</div>
         </div>
         """, unsafe_allow_html=True)
+
+        plot_index += 1
 
     if best_fit_container is not None:
         st.markdown(f"""
