@@ -3,3 +3,4 @@ pandas
 py3dbp
 matplotlib
 numpy
+openpyxl
