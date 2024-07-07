@@ -126,6 +126,9 @@ if st.button("Optimize Packing"):
     best_fit_container = None
     best_fit_volume_utilized_percentage = 0
 
+    columns = st.columns(2)  # Create two columns for side-by-side comparison
+    enlarge_plots = st.checkbox("Enlarge plots")  # Option to enlarge plots
+
     for index, carton in cartons_df.iterrows():
         storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
         packer = Packer()
@@ -151,7 +154,7 @@ if st.button("Optimize Packing"):
             best_fit_volume_utilized_percentage = volume_utilized_percentage
 
         # Generate 3D plot
-        fig = plt.figure(figsize=(8, 6))
+        fig = plt.figure(figsize=(12, 10) if enlarge_plots else (6, 5))
         ax = fig.add_subplot(111, projection='3d')
         for b in packer.bins:
             for item in b.items:
@@ -166,10 +169,10 @@ if st.button("Optimize Packing"):
         ax.set_zlabel('Z axis')
         ax.set_title(f'3D Visualization of Items in {carton["Description"]}')
         plt.tight_layout(pad=2.0)
-        st.pyplot(fig)
+        columns[index % 2].pyplot(fig)  # Display the plot in one of the two columns
 
         # Display container information
-        st.markdown(f"""
+        columns[index % 2].markdown(f"""
         <div class='report-container'>
             <h2>Container: {carton['Description']}</h2>
             <div class='container-info'>Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})</div>
