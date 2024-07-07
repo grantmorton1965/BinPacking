@@ -40,10 +40,11 @@ def add_custom_css():
             margin-top: 20px;
             margin-bottom: 10px;
         }
-        .container-info, .container-info h2 {
-            font-size: 18px;
+        .container-info {
+            font-size: 16px;
             font-weight: bold;
             color: #333;
+            margin-bottom: 5px;
         }
         .plot-container {
             display: flex;
@@ -211,5 +212,6 @@ if st.button("Optimize Packing"):
         """, unsafe_allow_html=True)
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
+
 
 
