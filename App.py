@@ -25,6 +25,7 @@ def add_custom_css():
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             border: 1px solid #e0e0e0;
+            margin: 20px;
         }
         .report-container {
             margin-top: 40px;
@@ -223,7 +224,6 @@ if st.button("Optimize Packing"):
         """, unsafe_allow_html=True)
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
-
 
 
 
