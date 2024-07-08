@@ -18,7 +18,7 @@ def add_custom_css():
         """
         <style>
         body {
-            background-color: #f7f9fc;
+            background-color: #f0f2f6;
             color: #333;
             font-family: 'Arial', sans-serif;
         }
@@ -27,7 +27,7 @@ def add_custom_css():
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border: 1px solid #cccccc;
+            border: 1px solid #e0e0e0;
         }
         .report-container {
             margin-top: 40px;
@@ -37,10 +37,12 @@ def add_custom_css():
             color: #004080;
         }
         h1 {
-            font-size: 24px;
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 20px;
         }
         h2 {
-            font-size: 18px;
+            font-size: 20px;
             margin-top: 10px;
             margin-bottom: 5px;
         }
@@ -81,6 +83,7 @@ def add_custom_css():
             color: #cc3300;
             margin-top: 20px;
             font-size: 18px;
+            text-align: center;
         }
         .footer {
             text-align: center;
@@ -194,10 +197,10 @@ if st.button("Optimize Packing"):
         ax.set_zlim([0, carton['ID Height (in)']])
         ax.set_box_aspect([carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)']])
         ax.set_title('')
-        plt.tight_layout(pad=2.0)
         ax.set_xticklabels([])
         ax.set_yticklabels([])
         ax.set_zticklabels([])
+        plt.tight_layout(pad=2.0)
         plot_columns[plot_index % 3].pyplot(fig)  # Display the plot in one of the three columns
 
         plot_index += 1
