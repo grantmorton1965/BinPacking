@@ -110,17 +110,20 @@ cartons_df = pd.read_excel(file_path, sheet_name='Cartons')
 def get_random_color():
     return np.random.rand(3,)
 
-# Function to create a 3D box (representing an item) without labels using Plotly
+# Function to add a 3D box (representing an item) using Plotly
 def add_box(fig, item, color):
     x, y, z = item.position
     l, w, h = item.get_dimension()
-
+    x_data = [x, x+l, x+l, x, x, x+l, x+l, x]
+    y_data = [y, y, y+w, y+w, y, y, y+w, y+w]
+    z_data = [z, z, z, z, z+h, z+h, z+h, z+h]
+    
     fig.add_trace(go.Mesh3d(
-        x=[x, x, x+l, x+l, x, x, x+l, x+l],
-        y=[y, y+w, y+w, y, y, y+w, y+w, y],
-        z=[z, z, z, z, z+h, z+h, z+h, z+h],
-        color='rgba({},{},{},0.6)'.format(int(color[0]*255), int(color[1]*255), int(color[2]*255)),
-        opacity=0.6,
+        x=x_data,
+        y=y_data,
+        z=z_data,
+        color='rgba({}, {}, {}, 0.5)'.format(int(color[0]*255), int(color[1]*255), int(color[2]*255)),
+        opacity=0.5
     ))
 
 # Streamlit app layout
@@ -195,10 +198,10 @@ if st.button("Optimize Packing"):
 
         fig.update_layout(
             scene=dict(
-                xaxis=dict(visible=False),
-                yaxis=dict(visible=False),
-                zaxis=dict(visible=False),
-                aspectratio=dict(x=carton['ID Length (in)'], y=carton['ID Width (in)'], z=carton['ID Height (in)']),
+                xaxis=dict(visible=True),
+                yaxis=dict(visible=True),
+                zaxis=dict(visible=True),
+                aspectratio=dict(x=1, y=1, z=1)
             ),
             margin=dict(r=10, l=10, b=10, t=10),
         )
