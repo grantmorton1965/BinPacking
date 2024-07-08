@@ -95,14 +95,9 @@ def add_custom_css():
 add_custom_css()
 
 # Load the Excel file
-uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
-
-if uploaded_file:
-    packages_df = pd.read_excel(uploaded_file, sheet_name='Packages')
-    cartons_df = pd.read_excel(uploaded_file, sheet_name='Cartons')
-else:
-    st.warning("Please upload an Excel file.")
-    st.stop()
+file_path = 'Optimization Problem.xlsx'
+packages_df = pd.read_excel(file_path, sheet_name='Packages')
+cartons_df = pd.read_excel(file_path, sheet_name='Cartons')
 
 # Function to generate a random color
 def get_random_color():
