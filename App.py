@@ -41,8 +41,8 @@ def add_custom_css():
             margin-bottom: 10px;
         }
         .container-info {
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: normal;
             color: #333;
             margin-bottom: 5px;
         }
@@ -212,6 +212,7 @@ if st.button("Optimize Packing"):
         """, unsafe_allow_html=True)
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
+
 
 
 
