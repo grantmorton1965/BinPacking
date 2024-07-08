@@ -1,6 +1,6 @@
-streamlit
 pandas
-py3dbp
 matplotlib
 numpy
-openpyxl
+streamlit
+plotly
+py3dbp
