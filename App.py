@@ -8,6 +8,8 @@ from py3dbp import Packer, Bin, Item
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
+import pdfkit
+import tempfile
 
 # Custom CSS to enhance the look
 def add_custom_css():
@@ -94,6 +96,10 @@ def add_custom_css():
             margin-top: 20px;
             color: #6c757d;
             font-size: 14px;
+        }
+        .pdf-button-container {
+            text-align: center;
+            margin-top: 20px;
         }
         </style>
         """,
@@ -210,20 +216,119 @@ if st.button("Optimize Packing"):
 
         plot_index += 1
 
+    # Save report as PDF
+    def save_as_pdf(html):
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmpfile:
+            pdfkit.from_string(html, tmpfile.name)
+            st.success("PDF generated successfully!")
+            with open(tmpfile.name, "rb") as file:
+                st.download_button(
+                    label="Download PDF",
+                    data=file,
+                    file_name="Packing_Optimization_Report.pdf",
+                    mime="application/pdf",
+                )
+
+    # Convert the HTML content to a single string
+    html_content = f"""
+    <html>
+    <head>
+    <style>
+    body {{
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
+        padding: 20px;
+    }}
+    h1, h2, h3 {{
+        color: #003366;
+    }}
+    h1 {{
+        font-size: 36px;
+        text-align: center;
+        margin-bottom: 40px;
+    }}
+    h2 {{
+        font-size: 22px;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }}
+    .container-info {{
+        font-size: 16px;
+        font-weight: normal;
+        color: #333;
+        margin-bottom: 5px;
+    }}
+    .plot-container {{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 40px;
+        background-color: #fff;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+    }}
+    .plot-container h2, .plot-container .container-info {{
+        margin: 0;
+        padding: 0;
+    }}
+    .best-fit {{
+        font-weight: bold;
+        color: #cc3300;
+        margin-top: 20px;
+        font-size: 20px;
+        text-align: center;
+    }}
+    .footer {{
+        text-align: center;
+        margin-top: 20px;
+        color: #6c757d;
+        font-size: 14px;
+    }}
+    </style>
+    </head>
+    <body>
+    <h1>Packing Optimization Report</h1>
+    """
+
+    for index, carton in cartons_df.iterrows():
+        storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
+        storage_volume = float(storage_unit.width * storage_unit.height * storage_unit.depth)
+        total_items_fit = sum(len(b.items) for b in packer.bins)
+        total_volume_utilized = float(total_items_fit * item_volume)
+        volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
+        html_content += f"""
+        <div class='plot-container'>
+            <h2>Container: {carton['Description']}</h2>
+            <div class='container-info'>Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})</div>
+            <div class='container-info'>Total number of items fit: {total_items_fit}</div>
+            <div class='container-info'>Percentage of volume utilized: {volume_utilized_percentage:.2f}%</div>
+        </div>
+        """
+
     if best_fit_container is not None:
-        st.markdown(f"""
+        html_content += f"""
         <div class='report-container'>
             <div class='best-fit'>The best fit container is {best_fit_container["Description"]} with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%</div>
         </div>
-        """, unsafe_allow_html=True)
+        """
     else:
-        st.markdown("""
+        html_content += """
         <div class='report-container'>
             <div class='best-fit'>No suitable container found.</div>
         </div>
-        """, unsafe_allow_html=True)
+        """
+
+    html_content += "<div class='footer'>&copy; 2024 Packing Optimization Report</div></body></html>"
+
+    if st.button("Save as PDF"):
+        save_as_pdf(html_content)
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
+
 
 
 
