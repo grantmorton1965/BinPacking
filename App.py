@@ -11,6 +11,7 @@ import numpy as np
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import tempfile
+import base64
 
 # Custom CSS to enhance the look
 def add_custom_css():
@@ -266,5 +267,6 @@ if st.button("Optimize Packing"):
         save_as_pdf()
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
+
 
 
