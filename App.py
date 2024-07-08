@@ -35,10 +35,13 @@ def add_custom_css():
         h1, h2, h3 {
             color: #004080;
         }
-        h2 {
+        h1 {
             font-size: 24px;
-            margin-top: 20px;
-            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 18px;
+            margin-top: 10px;
+            margin-bottom: 5px;
         }
         .container-info {
             font-size: 14px;
@@ -212,6 +215,7 @@ if st.button("Optimize Packing"):
         """, unsafe_allow_html=True)
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
+
 
 
 
