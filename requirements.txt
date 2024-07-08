@@ -4,3 +4,4 @@ numpy
 streamlit
 plotly
 py3dbp
+reportlab
