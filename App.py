@@ -8,7 +8,8 @@ from py3dbp import Packer, Bin, Item
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-import pdfkit
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 import tempfile
 
 # Custom CSS to enhance the look
@@ -217,9 +218,34 @@ if st.button("Optimize Packing"):
         plot_index += 1
 
     # Save report as PDF
-    def save_as_pdf(html):
+    def save_as_pdf():
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmpfile:
-            pdfkit.from_string(html, tmpfile.name)
+            c = canvas.Canvas(tmpfile.name, pagesize=letter)
+            width, height = letter
+            c.drawString(30, height - 40, "Packing Optimization Report")
+            y = height - 60
+            for index, carton in cartons_df.iterrows():
+                if y < 100:
+                    c.showPage()
+                    y = height - 40
+                storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
+                storage_volume = float(storage_unit.width * storage_unit.height * storage_unit.depth)
+                total_items_fit = sum(len(b.items) for b in packer.bins)
+                total_volume_utilized = float(total_items_fit * item_volume)
+                volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
+                c.drawString(30, y, f"Container: {carton['Description']}")
+                y -= 20
+                c.drawString(30, y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
+                y -= 20
+                c.drawString(30, y, f"Total number of items fit: {total_items_fit}")
+                y -= 20
+                c.drawString(30, y, f"Percentage of volume utilized: {volume_utilized_percentage:.2f}%")
+                y -= 40
+            if best_fit_container is not None:
+                c.drawString(30, y, f"The best fit container is {best_fit_container['Description']} with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%")
+            else:
+                c.drawString(30, y, "No suitable container found.")
+            c.save()
             st.success("PDF generated successfully!")
             with open(tmpfile.name, "rb") as file:
                 st.download_button(
@@ -229,109 +255,7 @@ if st.button("Optimize Packing"):
                     mime="application/pdf",
                 )
 
-    # Convert the HTML content to a single string
-    html_content = f"""
-    <html>
-    <head>
-    <style>
-    body {{
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f9;
-        color: #333;
-        padding: 20px;
-    }}
-    h1, h2, h3 {{
-        color: #003366;
-    }}
-    h1 {{
-        font-size: 36px;
-        text-align: center;
-        margin-bottom: 40px;
-    }}
-    h2 {{
-        font-size: 22px;
-        margin-top: 20px;
-        margin-bottom: 10px;
-    }}
-    .container-info {{
-        font-size: 16px;
-        font-weight: normal;
-        color: #333;
-        margin-bottom: 5px;
-    }}
-    .plot-container {{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        margin-bottom: 40px;
-        background-color: #fff;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        border: 1px solid #ddd;
-    }}
-    .plot-container h2, .plot-container .container-info {{
-        margin: 0;
-        padding: 0;
-    }}
-    .best-fit {{
-        font-weight: bold;
-        color: #cc3300;
-        margin-top: 20px;
-        font-size: 20px;
-        text-align: center;
-    }}
-    .footer {{
-        text-align: center;
-        margin-top: 20px;
-        color: #6c757d;
-        font-size: 14px;
-    }}
-    </style>
-    </head>
-    <body>
-    <h1>Packing Optimization Report</h1>
-    """
-
-    for index, carton in cartons_df.iterrows():
-        storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
-        storage_volume = float(storage_unit.width * storage_unit.height * storage_unit.depth)
-        total_items_fit = sum(len(b.items) for b in packer.bins)
-        total_volume_utilized = float(total_items_fit * item_volume)
-        volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
-        html_content += f"""
-        <div class='plot-container'>
-            <h2>Container: {carton['Description']}</h2>
-            <div class='container-info'>Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})</div>
-            <div class='container-info'>Total number of items fit: {total_items_fit}</div>
-            <div class='container-info'>Percentage of volume utilized: {volume_utilized_percentage:.2f}%</div>
-        </div>
-        """
-
-    if best_fit_container is not None:
-        html_content += f"""
-        <div class='report-container'>
-            <div class='best-fit'>The best fit container is {best_fit_container["Description"]} with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%</div>
-        </div>
-        """
-    else:
-        html_content += """
-        <div class='report-container'>
-            <div class='best-fit'>No suitable container found.</div>
-        </div>
-        """
-
-    html_content += "<div class='footer'>&copy; 2024 Packing Optimization Report</div></body></html>"
-
     if st.button("Save as PDF"):
-        save_as_pdf(html_content)
+        save_as_pdf()
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
-
-
-
-
-
-
-
