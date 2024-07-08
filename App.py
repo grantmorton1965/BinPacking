@@ -8,6 +8,9 @@ from py3dbp import Packer, Bin, Item
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+import tempfile
 
 # Custom CSS to enhance the look
 def add_custom_css():
@@ -222,5 +225,46 @@ if st.button("Optimize Packing"):
         </div>
         """, unsafe_allow_html=True)
 
+    def save_as_pdf():
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmpfile:
+            c = canvas.Canvas(tmpfile.name, pagesize=letter)
+            width, height = letter
+            c.drawString(30, height - 40, "Packing Optimization Report")
+            y = height - 60
+            for index, carton in cartons_df.iterrows():
+                if y < 100:
+                    c.showPage()
+                    y = height - 40
+                storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
+                storage_volume = float(storage_unit.width * storage_unit.height * storage_unit.depth)
+                total_items_fit = sum(len(b.items) for b in packer.bins)
+                total_volume_utilized = float(total_items_fit * item_volume)
+                volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
+                c.drawString(30, y, f"Container: {carton['Description']}")
+                y -= 20
+                c.drawString(30, y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
+                y -= 20
+                c.drawString(30, y, f"Total number of items fit: {total_items_fit}")
+                y -= 20
+                c.drawString(30, y, f"Percentage of volume utilized: {volume_utilized_percentage:.2f}%")
+                y -= 40
+            if best_fit_container is not None:
+                c.drawString(30, y, f"The best fit container is {best_fit_container['Description']} with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%")
+            else:
+                c.drawString(30, y, "No suitable container found.")
+            c.save()
+            st.success("PDF generated successfully!")
+            with open(tmpfile.name, "rb") as file:
+                st.download_button(
+                    label="Download PDF",
+                    data=file,
+                    file_name="Packing_Optimization_Report.pdf",
+                    mime="application/pdf",
+                )
+
+    if st.button("Save as PDF"):
+        save_as_pdf()
+
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
+
 
