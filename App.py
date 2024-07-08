@@ -27,6 +27,7 @@ def add_custom_css():
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #cccccc;
         }
         .report-container {
             margin-top: 40px;
@@ -192,11 +193,11 @@ if st.button("Optimize Packing"):
         ax.set_ylim([0, carton['ID Width (in)']])
         ax.set_zlim([0, carton['ID Height (in)']])
         ax.set_box_aspect([carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)']])
-        ax.set_xlabel('X axis')
-        ax.set_ylabel('Y axis')
-        ax.set_zlabel('Z axis')
-        ax.set_title(f'3D Visualization of Items in {carton["Description"]}')
+        ax.set_title('')
         plt.tight_layout(pad=2.0)
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
+        ax.set_zticklabels([])
         plot_columns[plot_index % 3].pyplot(fig)  # Display the plot in one of the three columns
 
         plot_index += 1
@@ -215,6 +216,7 @@ if st.button("Optimize Packing"):
         """, unsafe_allow_html=True)
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
+
 
 
 
