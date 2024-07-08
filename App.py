@@ -8,9 +8,6 @@ from py3dbp import Packer, Bin, Item
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-from collections import defaultdict
-from io import BytesIO
-import base64
 
 # Custom CSS to enhance the look
 def add_custom_css():
@@ -18,7 +15,7 @@ def add_custom_css():
         """
         <style>
         body {
-            background-color: #f0f2f6;
+            background-color: #f4f4f9;
             color: #333;
             font-family: 'Arial', sans-serif;
         }
@@ -26,7 +23,7 @@ def add_custom_css():
             background-color: #ffffff;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             border: 1px solid #e0e0e0;
         }
         .report-container {
@@ -34,20 +31,20 @@ def add_custom_css():
             margin-bottom: 40px;
         }
         h1, h2, h3 {
-            color: #004080;
+            color: #003366;
         }
         h1 {
-            font-size: 28px;
+            font-size: 36px;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 40px;
         }
         h2 {
-            font-size: 20px;
-            margin-top: 10px;
-            margin-bottom: 5px;
+            font-size: 22px;
+            margin-top: 20px;
+            margin-bottom: 10px;
         }
         .container-info {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: normal;
             color: #333;
             margin-bottom: 5px;
@@ -57,7 +54,12 @@ def add_custom_css():
             flex-direction: column;
             align-items: center;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 40px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
         }
         .plot-container h2, .plot-container .container-info {
             margin: 0;
@@ -68,6 +70,7 @@ def add_custom_css():
             justify-content: center;
             align-items: center;
             flex-direction: column;
+            margin-top: 10px;
         }
         .plot img {
             display: block;
@@ -76,19 +79,20 @@ def add_custom_css():
             margin: 20px 0;
             border: 1px solid #ddd;
             border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         .best-fit {
             font-weight: bold;
             color: #cc3300;
             margin-top: 20px;
-            font-size: 18px;
+            font-size: 20px;
             text-align: center;
         }
         .footer {
             text-align: center;
             margin-top: 20px;
             color: #6c757d;
+            font-size: 14px;
         }
         </style>
         """,
@@ -112,16 +116,16 @@ def add_box(ax, item, color):
     dim = np.array(item.get_dimension(), dtype=float)
 
     xx, yy = np.meshgrid([pos[0], pos[0] + dim[0]], [pos[1], pos[1] + dim[1]])
-    ax.plot_surface(xx, yy, np.full_like(xx, pos[2]), color=color, alpha=0.5, edgecolor='k', linewidth=0.5)
-    ax.plot_surface(xx, yy, np.full_like(xx, pos[2] + dim[2]), color=color, alpha=0.5, edgecolor='k', linewidth=0.5)
+    ax.plot_surface(xx, yy, np.full_like(xx, pos[2]), color=color, alpha=0.6, edgecolor='k', linewidth=0.3)
+    ax.plot_surface(xx, yy, np.full_like(xx, pos[2] + dim[2]), color=color, alpha=0.6, edgecolor='k', linewidth=0.3)
 
     yy, zz = np.meshgrid([pos[1], pos[1] + dim[1]], [pos[2], pos[2] + dim[2]])
-    ax.plot_surface(np.full_like(yy, pos[0]), yy, zz, color=color, alpha=0.5, edgecolor='k', linewidth=0.5)
-    ax.plot_surface(np.full_like(yy, pos[0] + dim[0]), yy, zz, color=color, alpha=0.5, edgecolor='k', linewidth=0.5)
+    ax.plot_surface(np.full_like(yy, pos[0]), yy, zz, color=color, alpha=0.6, edgecolor='k', linewidth=0.3)
+    ax.plot_surface(np.full_like(yy, pos[0] + dim[0]), yy, zz, color=color, alpha=0.6, edgecolor='k', linewidth=0.3)
 
     xx, zz = np.meshgrid([pos[0], pos[0] + dim[0]], [pos[2], pos[2] + dim[2]])
-    ax.plot_surface(xx, np.full_like(xx, pos[1]), zz, color=color, alpha=0.5, edgecolor='k', linewidth=0.5)
-    ax.plot_surface(xx, np.full_like(xx, pos[1] + dim[1]), zz, color=color, alpha=0.5, edgecolor='k', linewidth=0.5)
+    ax.plot_surface(xx, np.full_like(xx, pos[1]), zz, color=color, alpha=0.6, edgecolor='k', linewidth=0.3)
+    ax.plot_surface(xx, np.full_like(xx, pos[1] + dim[1]), zz, color=color, alpha=0.6, edgecolor='k', linewidth=0.3)
 
 # Streamlit app layout
 st.title("Packing Optimization Report")
@@ -219,6 +223,7 @@ if st.button("Optimize Packing"):
         """, unsafe_allow_html=True)
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
+
 
 
 
