@@ -5,7 +5,8 @@
 import streamlit as st
 import pandas as pd
 from py3dbp import Packer, Bin, Item
-import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
 # Custom CSS to enhance the look
@@ -110,21 +111,22 @@ cartons_df = pd.read_excel(file_path, sheet_name='Cartons')
 def get_random_color():
     return np.random.rand(3,)
 
-# Function to add a 3D box (representing an item) using Plotly
-def add_box(fig, item, color):
-    x, y, z = item.position
-    l, w, h = item.get_dimension()
-    x_data = [x, x+l, x+l, x, x, x+l, x+l, x]
-    y_data = [y, y, y+w, y+w, y, y, y+w, y+w]
-    z_data = [z, z, z, z, z+h, z+h, z+h, z+h]
-    
-    fig.add_trace(go.Mesh3d(
-        x=x_data,
-        y=y_data,
-        z=z_data,
-        color='rgba({}, {}, {}, 0.5)'.format(int(color[0]*255), int(color[1]*255), int(color[2]*255)),
-        opacity=0.5
-    ))
+# Function to add a 3D box (representing an item) without labels
+def add_box(ax, item, color):
+    pos = np.array(item.position, dtype=float)
+    dim = np.array(item.get_dimension(), dtype=float)
+
+    xx, yy = np.meshgrid([pos[0], pos[0] + dim[0]], [pos[1], pos[1] + dim[1]])
+    ax.plot_surface(xx, yy, np.full_like(xx, pos[2]), color=color, alpha=0.6, edgecolor='k', linewidth=0.3)
+    ax.plot_surface(xx, yy, np.full_like(xx, pos[2] + dim[2]), color=color, alpha=0.6, edgecolor='k', linewidth=0.3)
+
+    yy, zz = np.meshgrid([pos[1], pos[1] + dim[1]], [pos[2], pos[2] + dim[2]])
+    ax.plot_surface(np.full_like(yy, pos[0]), yy, zz, color=color, alpha=0.6, edgecolor='k', linewidth=0.3)
+    ax.plot_surface(np.full_like(yy, pos[0] + dim[0]), yy, zz, color=color, alpha=0.6, edgecolor='k', linewidth=0.3)
+
+    xx, zz = np.meshgrid([pos[0], pos[0] + dim[0]], [pos[2], pos[2] + dim[2]])
+    ax.plot_surface(xx, np.full_like(xx, pos[1]), zz, color=color, alpha=0.6, edgecolor='k', linewidth=0.3)
+    ax.plot_surface(xx, np.full_like(xx, pos[1] + dim[1]), zz, color=color, alpha=0.6, edgecolor='k', linewidth=0.3)
 
 # Streamlit app layout
 st.title("Packing Optimization Report")
@@ -188,25 +190,22 @@ if st.button("Optimize Packing"):
         </div>
         """, unsafe_allow_html=True)
 
-        # Generate 3D plot using Plotly
-        fig = go.Figure()
-
+        # Generate 3D plot
+        fig = plt.figure(figsize=(6, 5))
+        ax = fig.add_subplot(111, projection='3d')
         for b in packer.bins:
             for item in b.items:
                 color = get_random_color()
-                add_box(fig, item, color)
-
-        fig.update_layout(
-            scene=dict(
-                xaxis=dict(visible=True),
-                yaxis=dict(visible=True),
-                zaxis=dict(visible=True),
-                aspectratio=dict(x=1, y=1, z=1)
-            ),
-            margin=dict(r=10, l=10, b=10, t=10),
-        )
-
-        plot_columns[plot_index % 3].plotly_chart(fig, use_container_width=True)  # Display the plot in one of the three columns
+                add_box(ax, item, color)
+        ax.set_xlim([0, carton['ID Length (in)']])
+        ax.set_ylim([0, carton['ID Width (in)']])
+        ax.set_zlim([0, carton['ID Height (in)']])
+        ax.set_box_aspect([carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)']])
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
+        ax.set_zticklabels([])
+        plt.tight_layout(pad=2.0)
+        plot_columns[plot_index % 3].pyplot(fig)  # Display the plot in one of the three columns
 
         plot_index += 1
 
