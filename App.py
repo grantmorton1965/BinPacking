@@ -50,6 +50,10 @@ def add_custom_css():
             color: #333;
             margin-bottom: 5px;
         }
+        .container-dimensions {
+            font-size: 14px;
+            color: #555;
+        }
         .plot-container {
             display: flex;
             flex-direction: column;
@@ -62,7 +66,7 @@ def add_custom_css():
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border: 1px solid #ddd;
         }
-        .plot-container h2, .plot-container .container-info {
+        .plot-container h2, .plot-container .container-info, .plot-container .container-dimensions {
             margin: 0;
             padding: 0;
         }
@@ -141,8 +145,12 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             if y < 350:  # Adjust the limit to fit the image within the page
                 c.showPage()
                 y = height - 40
-            c.drawString(30, y, f"{carton['Description']} ({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})")
+            c.drawString(30, y, f"{carton['Description']}")
             y -= 20
+            c.setFont("Helvetica", 10)
+            c.drawString(30, y, f"({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})")
+            y -= 20
+            c.setFont("Helvetica", 12)
             c.drawString(30, y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
             y -= 20
             c.drawString(30, y, f"Total number of items fit: {sum(len(b.items) for b in packer.bins)}")
@@ -154,7 +162,13 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
                 c.drawImage(img, 30, y - 250, width - 60, 250)  # Adjust the height to fit within the page
                 y -= 270
         if best_fit_container is not None:
-            c.drawString(30, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%")
+            c.drawString(30, y, f"The best fit is {best_fit_container['Description']}")
+            y -= 20
+            c.setFont("Helvetica", 10)
+            c.drawString(30, y, f"({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']})")
+            y -= 20
+            c.setFont("Helvetica", 12)
+            c.drawString(30, y, f"with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%")
         else:
             c.drawString(30, y, "No suitable container found.")
         c.save()
@@ -216,7 +230,8 @@ if st.button("Optimize Packing"):
         # Display container information above the plot
         plot_columns[plot_index % 3].markdown(f"""
         <div class='plot-container'>
-            <h2>{carton['Description']} ({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})</h2>
+            <h2>{carton['Description']}</h2>
+            <div class='container-dimensions'>({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})</div>
             <div class='container-info'>Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})</div>
             <div class='container-info'>Total number of items fit: {total_items_fit}</div>
             <div class='container-info'>Percentage of volume utilized: {volume_utilized_percentage:.2f}%</div>
@@ -250,7 +265,9 @@ if st.button("Optimize Packing"):
     if best_fit_container is not None:
         st.markdown(f"""
         <div class='report-container'>
-            <div class='best-fit'>The best fit is {best_fit_container["Description"]} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%</div>
+            <div class='best-fit'>The best fit is {best_fit_container["Description"]}</div>
+            <div class='container-dimensions'>({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']})</div>
+            <div class='best-fit'>with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%</div>
         </div>
         """, unsafe_allow_html=True)
     else:
