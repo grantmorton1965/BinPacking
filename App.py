@@ -78,29 +78,29 @@ def add_custom_css():
             margin-top: 10px;
         }
         .plot img {
-            display: block.
-            max-width: 100%.
-            height: auto.
-            margin: 20px 0.
-            border: 1px solid #ddd.
-            border-radius: 5px.
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1).
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         .best-fit {
-            font-weight: bold.
-            color: #cc3300.
-            margin-top: 20px.
-            font-size: 20px.
-            text-align: center.
+            font-weight: bold;
+            color: #cc3300;
+            margin-top: 20px;
+            font-size: 20px;
+            text-align: center;
         }
         .footer {
-            text-align: center.
-            margin-top: 20px.
-            color: #6c757d.
-            font-size: 14px.
+            text-align: center;
+            margin-top: 20px;
+            color: #6c757d;
+            font-size: 14px;
         }
         .bold-text {
-            font-weight: bold.
+            font-weight: bold;
         }
         </style>
         """,
@@ -156,14 +156,10 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             c.setFont("Helvetica", 12)
             c.drawString(30, y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
             y -= 20
-            c.drawString(30, y, "Total number of items fit: ")
             c.setFont("Helvetica-Bold", 12)
-            c.drawString(200, y, f"{sum(len(b.items) for b in packer.bins)}")
+            c.drawString(30, y, f"Total number of items fit: {sum(len(b.items) for b in packer.bins)}")
             y -= 20
-            c.setFont("Helvetica", 12)
-            c.drawString(30, y, "Percentage of volume utilized: ")
-            c.setFont("Helvetica-Bold", 12)
-            c.drawString(200, y, f"{(sum(len(b.items) for b in packer.bins) * item_data['length'] * item_data['width'] * item_data['height'] / (carton['ID Length (in)'] * carton['ID Width (in)'] * carton['ID Height (in)'])):.2f}%")
+            c.drawString(30, y, f"Percentage of volume utilized: {(sum(len(b.items) for b in packer.bins) * item_data['length'] * item_data['width'] * item_data['height'] / (carton['ID Length (in)'] * carton['ID Width (in)'] * carton['ID Height (in)'])):.2f}%")
             y -= 40
             if index < len(plot_images):
                 img = ImageReader(plot_images[index])
@@ -171,9 +167,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
                 y -= 270
         c.setFont("Helvetica", 12)
         if best_fit_container is not None:
-            c.drawString(30, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of ")
-            c.setFont("Helvetica-Bold", 12)
-            c.drawString(200, y, f"{best_fit_volume_utilized_percentage:.2f}%")
+            c.drawString(30, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%")
         else:
             c.drawString(30, y, "No suitable container found.")
         c.save()
@@ -291,6 +285,7 @@ if st.button("Optimize Packing"):
         )
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
+
 
 
 
