@@ -65,6 +65,7 @@ def add_custom_css():
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border: 1px solid #ddd;
+            width: 100%;
         }
         .plot-container h2, .plot-container .container-info, .plot-container .container-dimensions {
             margin: 0;
@@ -101,6 +102,19 @@ def add_custom_css():
         }
         .bold-text {
             font-weight: bold;
+        }
+        .container-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .grid-item {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+            text-align: center;
         }
         </style>
         """,
@@ -254,8 +268,15 @@ if st.button("Optimize Packing"):
             fig.savefig(plotfile.name, format='png')
             plot_images.append(plotfile.name)
 
-        plot_columns[plot_index % 3].markdown(f"""
-        <div class='plot-container'>
+        plot_index += 1
+
+    st.markdown("<div class='container-grid'>", unsafe_allow_html=True)
+    for index, carton in cartons_df.iterrows():
+        if plot_index % 3 == 0:
+            plot_columns = st.columns(3)  # Create a new row of three columns
+
+        st.markdown(f"""
+        <div class='grid-item'>
             <h2>{carton['Description']}</h2>
             <div class='container-dimensions'>({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})</div>
             <div class='container-info'>Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})</div>
@@ -263,8 +284,8 @@ if st.button("Optimize Packing"):
             <div class='container-info'>Percentage of volume utilized: <span class='bold-text'>{volume_utilized_percentage:.2f}%</span></div>
         </div>
         """, unsafe_allow_html=True)
-
         plot_index += 1
+    st.markdown("</div>", unsafe_allow_html=True)
 
     if best_fit_container is not None:
         st.markdown(f"""
