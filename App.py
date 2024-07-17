@@ -133,10 +133,12 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmpfile:
         c = canvas.Canvas(tmpfile.name, pagesize=letter)
         width, height = letter
+        c.setFont("Helvetica", 16)
         c.drawString(30, height - 40, "Packing Optimization Report")
         y = height - 60
+        c.setFont("Helvetica", 12)
         for index, carton in cartons_df.iterrows():
-            if y < 100:
+            if y < 200:
                 c.showPage()
                 y = height - 40
             storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
