@@ -185,15 +185,15 @@ st.title("Packing Optimization Report")
 use_custom_dimensions = st.radio("Do you want to use custom package dimensions?", ('No', 'Yes'))
 
 if use_custom_dimensions == "Yes":
-    length = st.number_input("Enter the package length (in inches):", min_value=0.0)
-    width = st.number_input("Enter the package width (in inches):", min_value=0.0)
-    height = st.number_input("Enter the package height (in inches):", min_value=0.0)
+    length = round(st.number_input("Enter the package length (in inches):", min_value=0.0), 2)
+    width = round(st.number_input("Enter the package width (in inches):", min_value=0.0), 2)
+    height = round(st.number_input("Enter the package height (in inches):", min_value=0.0), 2)
 else:
     package_id = st.selectbox("Select the Package ID to pack:", packages_df['Package_ID'].unique())
     selected_package = packages_df[packages_df['Package_ID'] == package_id].iloc[0]
-    length = selected_package['PKG_LNGTH_IN']
-    width = selected_package['PKG_WIDTH_IN']
-    height = selected_package['PKG_DEPTH_IN']
+    length = round(selected_package['PKG_LNGTH_IN'], 2)
+    width = round(selected_package['PKG_WIDTH_IN'], 2)
+    height = round(selected_package['PKG_DEPTH_IN'], 2)
 
 if st.button("Optimize Packing"):
     item_data = {"name": "CustomPackage" if use_custom_dimensions == "Yes" else package_id, "length": length, "width": width, "height": height, "weight": 0}
@@ -257,8 +257,8 @@ if st.button("Optimize Packing"):
         plot_columns[plot_index % 3].markdown(f"""
         <div class='plot-container'>
             <h2>{carton['Description']}</h2>
-            <div class='container-dimensions'>({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})</div>
-            <div class='container-info'>Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})</div>
+            <div class='container-dimensions'>({round(carton['ID Length (in)'], 2)} x {round(carton['ID Width (in)'], 2)} x {round(carton['ID Height (in)'], 2)})</div>
+            <div class='container-info'>Package: {item_data['name']} ({round(item_data['length'], 2)} x {round(item_data['width'], 2)} x {round(item_data['height'], 2)})</div>
             <div class='container-info'>Total number of items fit: <span class='bold-text'>{total_items_fit}</span></div>
             <div class='container-info'>Percentage of volume utilized: <span class='bold-text'>{volume_utilized_percentage:.2f}%</span></div>
         </div>
@@ -269,7 +269,7 @@ if st.button("Optimize Packing"):
     if best_fit_container is not None:
         st.markdown(f"""
         <div class='report-container'>
-            <div class='best-fit'>The best fit is {best_fit_container["Description"]} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of <span class='bold-text'>{best_fit_volume_utilized_percentage:.2f}%</span></div>
+            <div class='best-fit'>The best fit is {best_fit_container["Description"]} ({round(best_fit_container['ID Length (in)'], 2)} x {round(best_fit_container['ID Width (in)'], 2)} x {round(best_fit_container['ID Height (in)'], 2)}) with a volume utilization of <span class='bold-text'>{best_fit_volume_utilized_percentage:.2f}%</span></div>
         </div>
         """, unsafe_allow_html=True)
     else:
