@@ -87,13 +87,13 @@ def add_custom_css():
             color: #cc3300;
             margin-top: 20px;
             font-size: 20px;
-            text-align: center;
+            text-align: center.
         }
         .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #6c757d;
-            font-size: 14px;
+            text-align: center.
+            margin-top: 20px.
+            color: #6c757d.
+            font-size: 14px.
         }
         </style>
         """,
@@ -141,7 +141,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             if y < 350:  # Adjust the limit to fit the image within the page
                 c.showPage()
                 y = height - 40
-            c.drawString(30, y, f"Container: {carton['Description']}")
+            c.drawString(30, y, f"Container: {carton['Description']} ({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})")
             y -= 20
             c.drawString(30, y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
             y -= 20
@@ -216,7 +216,7 @@ if st.button("Optimize Packing"):
         # Display container information above the plot
         plot_columns[plot_index % 3].markdown(f"""
         <div class='plot-container'>
-            <h2>Container: {carton['Description']}</h2>
+            <h2>Container: {carton['Description']} ({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})</h2>
             <div class='container-info'>Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})</div>
             <div class='container-info'>Total number of items fit: {total_items_fit}</div>
             <div class='container-info'>Percentage of volume utilized: {volume_utilized_percentage:.2f}%</div>
