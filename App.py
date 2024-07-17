@@ -162,13 +162,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
                 c.drawImage(img, 30, y - 250, width - 60, 250)  # Adjust the height to fit within the page
                 y -= 270
         if best_fit_container is not None:
-            c.drawString(30, y, f"The best fit is {best_fit_container['Description']}")
-            y -= 20
-            c.setFont("Helvetica", 10)
-            c.drawString(30, y, f"({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']})")
-            y -= 20
-            c.setFont("Helvetica", 12)
-            c.drawString(30, y, f"with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%")
+            c.drawString(30, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%")
         else:
             c.drawString(30, y, "No suitable container found.")
         c.save()
@@ -265,9 +259,7 @@ if st.button("Optimize Packing"):
     if best_fit_container is not None:
         st.markdown(f"""
         <div class='report-container'>
-            <div class='best-fit'>The best fit is {best_fit_container["Description"]}</div>
-            <div class='container-dimensions'>({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']})</div>
-            <div class='best-fit'>with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%</div>
+            <div class='best-fit'>The best fit is {best_fit_container["Description"]} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%</div>
         </div>
         """, unsafe_allow_html=True)
     else:
@@ -288,4 +280,5 @@ if st.button("Optimize Packing"):
         )
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
+
 
