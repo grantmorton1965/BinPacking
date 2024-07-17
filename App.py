@@ -6,6 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from reportlab.lib.utils import ImageReader
 import tempfile
 
 # Custom CSS to enhance the look
@@ -128,7 +129,7 @@ def add_box(ax, item, color):
     ax.plot_surface(xx, np.full_like(xx, pos[1] + dim[1]), zz, color=color, alpha=0.6, edgecolor='k', linewidth=0.3)
 
 # Function to save the report as a PDF
-def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utilized_percentage):
+def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utilized_percentage, plot_images):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmpfile:
         c = canvas.Canvas(tmpfile.name, pagesize=letter)
         width, height = letter
@@ -151,6 +152,10 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             y -= 20
             c.drawString(30, y, f"Percentage of volume utilized: {volume_utilized_percentage:.2f}%")
             y -= 40
+            if index < len(plot_images):
+                img = ImageReader(plot_images[index])
+                c.drawImage(img, 30, y - 300, width - 60, 300)
+                y -= 320
         if best_fit_container is not None:
             c.drawString(30, y, f"The best fit container is {best_fit_container['Description']} with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%")
         else:
@@ -182,6 +187,7 @@ if st.button("Optimize Packing"):
 
     plot_index = 0
     plot_columns = []
+    plot_images = []
 
     for index, carton in cartons_df.iterrows():
         if plot_index % 3 == 0:
@@ -237,6 +243,11 @@ if st.button("Optimize Packing"):
         plt.tight_layout(pad=2.0)
         plot_columns[plot_index % 3].pyplot(fig)  # Display the plot in one of the three columns
 
+        # Save plot as image
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as plotfile:
+            fig.savefig(plotfile.name, format='png')
+            plot_images.append(plotfile.name)
+
         plot_index += 1
 
     if best_fit_container is not None:
@@ -253,7 +264,7 @@ if st.button("Optimize Packing"):
         """, unsafe_allow_html=True)
 
     # Add button to save the report as a PDF
-    pdf_file = save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utilized_percentage)
+    pdf_file = save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utilized_percentage, plot_images)
     with open(pdf_file, "rb") as file:
         st.download_button(
             label="Download PDF",
@@ -263,6 +274,5 @@ if st.button("Optimize Packing"):
         )
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
-
 
 
