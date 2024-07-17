@@ -218,6 +218,7 @@ if st.button("Optimize Packing"):
     plot_index = 0
     plot_columns = []
     plot_images = []
+    descriptions = []
 
     for index, carton in cartons_df.iterrows():
         if plot_index % 3 == 0:
@@ -268,14 +269,7 @@ if st.button("Optimize Packing"):
             fig.savefig(plotfile.name, format='png')
             plot_images.append(plotfile.name)
 
-        plot_index += 1
-
-    st.markdown("<div class='container-grid'>", unsafe_allow_html=True)
-    for index, carton in cartons_df.iterrows():
-        if plot_index % 3 == 0:
-            plot_columns = st.columns(3)  # Create a new row of three columns
-
-        st.markdown(f"""
+        description = f"""
         <div class='grid-item'>
             <h2>{carton['Description']}</h2>
             <div class='container-dimensions'>({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})</div>
@@ -283,8 +277,13 @@ if st.button("Optimize Packing"):
             <div class='container-info'>Total number of items fit: <span class='bold-text'>{total_items_fit}</span></div>
             <div class='container-info'>Percentage of volume utilized: <span class='bold-text'>{volume_utilized_percentage:.2f}%</span></div>
         </div>
-        """, unsafe_allow_html=True)
+        """
+        descriptions.append(description)
         plot_index += 1
+
+    st.markdown("<div class='container-grid'>", unsafe_allow_html=True)
+    for description in descriptions:
+        st.markdown(description, unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
     if best_fit_container is not None:
