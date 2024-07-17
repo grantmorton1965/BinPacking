@@ -65,7 +65,6 @@ def add_custom_css():
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border: 1px solid #ddd;
-            width: 100%;
         }
         .plot-container h2, .plot-container .container-info, .plot-container .container-dimensions {
             margin: 0;
@@ -74,47 +73,34 @@ def add_custom_css():
         .plot {
             display: flex;
             justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            margin-top: 10px;
+            align-items: center.
+            flex-direction: column.
+            margin-top: 10px.
         }
         .plot img {
-            display: block;
-            max-width: 100%;
-            height: auto;
-            margin: 20px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: block.
+            max-width: 100%.
+            height: auto.
+            margin: 20px 0.
+            border: 1px solid #ddd.
+            border-radius: 5px.
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1).
         }
         .best-fit {
-            font-weight: bold;
-            color: #cc3300;
-            margin-top: 20px;
-            font-size: 20px;
-            text-align: center;
+            font-weight: bold.
+            color: #cc3300.
+            margin-top: 20px.
+            font-size: 20px.
+            text-align: center.
         }
         .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #6c757d;
-            font-size: 14px;
+            text-align: center.
+            margin-top: 20px.
+            color: #6c757d.
+            font-size: 14px.
         }
         .bold-text {
-            font-weight: bold;
-        }
-        .container-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-        .grid-item {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border: 1px solid #ddd;
-            text-align: center;
+            font-weight: bold.
         }
         </style>
         """,
@@ -218,7 +204,6 @@ if st.button("Optimize Packing"):
     plot_index = 0
     plot_columns = []
     plot_images = []
-    descriptions = []
 
     for index, carton in cartons_df.iterrows():
         if plot_index % 3 == 0:
@@ -247,6 +232,17 @@ if st.button("Optimize Packing"):
             best_fit_container = carton
             best_fit_volume_utilized_percentage = volume_utilized_percentage
 
+        # Display container information above the plot
+        plot_columns[plot_index % 3].markdown(f"""
+        <div class='plot-container'>
+            <h2>{carton['Description']}</h2>
+            <div class='container-dimensions'>({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})</div>
+            <div class='container-info'>Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})</div>
+            <div class='container-info'>Total number of items fit: <span class='bold-text'>{total_items_fit}</span></div>
+            <div class='container-info'>Percentage of volume utilized: <span class='bold-text'>{volume_utilized_percentage:.2f}%</span></div>
+        </div>
+        """, unsafe_allow_html=True)
+
         # Generate 3D plot
         fig = plt.figure(figsize=(6, 5))
         ax = fig.add_subplot(111, projection='3d')
@@ -269,22 +265,7 @@ if st.button("Optimize Packing"):
             fig.savefig(plotfile.name, format='png')
             plot_images.append(plotfile.name)
 
-        description = f"""
-        <div class='grid-item'>
-            <h2>{carton['Description']}</h2>
-            <div class='container-dimensions'>({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})</div>
-            <div class='container-info'>Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})</div>
-            <div class='container-info'>Total number of items fit: <span class='bold-text'>{total_items_fit}</span></div>
-            <div class='container-info'>Percentage of volume utilized: <span class='bold-text'>{volume_utilized_percentage:.2f}%</span></div>
-        </div>
-        """
-        descriptions.append(description)
         plot_index += 1
-
-    st.markdown("<div class='container-grid'>", unsafe_allow_html=True)
-    for description in descriptions:
-        st.markdown(description, unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
 
     if best_fit_container is not None:
         st.markdown(f"""
@@ -310,6 +291,7 @@ if st.button("Optimize Packing"):
         )
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
+
 
 
 
