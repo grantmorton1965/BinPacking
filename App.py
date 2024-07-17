@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
 import streamlit as st
 import pandas as pd
 from py3dbp import Packer, Bin, Item
@@ -257,15 +253,14 @@ if st.button("Optimize Packing"):
         """, unsafe_allow_html=True)
 
     # Add button to save the report as a PDF
-    if st.button("Save as PDF"):
-        pdf_file = save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utilized_percentage)
-        with open(pdf_file, "rb") as file:
-            st.download_button(
-                label="Download PDF",
-                data=file,
-                file_name="Packing_Optimization_Report.pdf",
-                mime="application/pdf",
-            )
+    pdf_file = save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utilized_percentage)
+    with open(pdf_file, "rb") as file:
+        st.download_button(
+            label="Download PDF",
+            data=file,
+            file_name="Packing_Optimization_Report.pdf",
+            mime="application/pdf",
+        )
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
 
