@@ -55,49 +55,52 @@ def add_custom_css():
             color: #555;
         }
         .plot-container {
-            display: flex.
-            flex-direction: column.
-            align-items: center.
-            text-align: center.
-            margin-bottom: 40px.
-            background-color: #fff.
-            padding: 15px.
-            border-radius: 10px.
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1).
-            border: 1px solid #ddd.
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 40px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
         }
         .plot-container h2, .plot-container .container-info, .plot-container .container-dimensions {
-            margin: 0.
-            padding: 0.
+            margin: 0;
+            padding: 0;
         }
         .plot {
-            display: flex.
-            justify-content: center.
-            align-items: center.
-            flex-direction: column.
-            margin-top: 10px.
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 10px;
         }
         .plot img {
-            display: block.
-            max-width: 100%.
-            height: auto.
-            margin: 20px 0.
-            border: 1px solid #ddd.
-            border-radius: 5px.
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1).
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         .best-fit {
-            font-weight: bold.
-            color: #cc3300.
-            margin-top: 20px.
-            font-size: 20px.
-            text-align: center.
+            font-weight: bold;
+            color: #cc3300;
+            margin-top: 20px;
+            font-size: 20px;
+            text-align: center;
         }
         .footer {
-            text-align: center.
-            margin-top: 20px.
-            color: #6c757d.
-            font-size: 14px.
+            text-align: center;
+            margin-top: 20px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .bold-text {
+            font-weight: bold;
         }
         </style>
         """,
@@ -229,8 +232,8 @@ if st.button("Optimize Packing"):
             <h2>{carton['Description']}</h2>
             <div class='container-dimensions'>({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})</div>
             <div class='container-info'>Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})</div>
-            <div class='container-info'>Total number of items fit: <b>{total_items_fit}</b></div>
-            <div class='container-info'>Percentage of volume utilized: <b>{volume_utilized_percentage:.2f}%</b></div>
+            <div class='container-info'>Total number of items fit: <span class='bold-text'>{total_items_fit}</span></div>
+            <div class='container-info'>Percentage of volume utilized: <span class='bold-text'>{volume_utilized_percentage:.2f}%</span></div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -261,7 +264,7 @@ if st.button("Optimize Packing"):
     if best_fit_container is not None:
         st.markdown(f"""
         <div class='report-container'>
-            <div class='best-fit'>The best fit is {best_fit_container["Description"]} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of <b>{best_fit_volume_utilized_percentage:.2f}%</b></div>
+            <div class='best-fit'>The best fit is {best_fit_container["Description"]} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of <span class='bold-text'>{best_fit_volume_utilized_percentage:.2f}%</span></div>
         </div>
         """, unsafe_allow_html=True)
     else:
