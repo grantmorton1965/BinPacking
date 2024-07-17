@@ -99,6 +99,9 @@ def add_custom_css():
             color: #6c757d;
             font-size: 14px;
         }
+        .bold-text {
+            font-weight: bold;
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -153,6 +156,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             c.setFont("Helvetica", 12)
             c.drawString(30, y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
             y -= 20
+            c.setFont("Helvetica-Bold", 12)
             c.drawString(30, y, f"Total number of items fit: {sum(len(b.items) for b in packer.bins)}")
             y -= 20
             c.drawString(30, y, f"Percentage of volume utilized: {(sum(len(b.items) for b in packer.bins) * item_data['length'] * item_data['width'] * item_data['height'] / (carton['ID Length (in)'] * carton['ID Width (in)'] * carton['ID Height (in)'])):.2f}%")
@@ -161,6 +165,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
                 img = ImageReader(plot_images[index])
                 c.drawImage(img, 30, y - 250, width - 60, 250)  # Adjust the height to fit within the page
                 y -= 270
+        c.setFont("Helvetica", 12)
         if best_fit_container is not None:
             c.drawString(30, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%")
         else:
@@ -227,8 +232,8 @@ if st.button("Optimize Packing"):
             <h2>{carton['Description']}</h2>
             <div class='container-dimensions'>({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})</div>
             <div class='container-info'>Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})</div>
-            <div class='container-info'>Total number of items fit: {total_items_fit}</div>
-            <div class='container-info'>Percentage of volume utilized: {volume_utilized_percentage:.2f}%</div>
+            <div class='container-info'>Total number of items fit: <span class='bold-text'>{total_items_fit}</span></div>
+            <div class='container-info'>Percentage of volume utilized: <span class='bold-text'>{volume_utilized_percentage:.2f}%</span></div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -259,7 +264,7 @@ if st.button("Optimize Packing"):
     if best_fit_container is not None:
         st.markdown(f"""
         <div class='report-container'>
-            <div class='best-fit'>The best fit is {best_fit_container["Description"]} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%</div>
+            <div class='best-fit'>The best fit is {best_fit_container["Description"]} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of <span class='bold-text'>{best_fit_volume_utilized_percentage:.2f}%</span></div>
         </div>
         """, unsafe_allow_html=True)
     else:
@@ -280,5 +285,6 @@ if st.button("Optimize Packing"):
         )
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
+
 
 
