@@ -160,7 +160,6 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             c.setFont("Helvetica", 12)
             c.drawString(30, y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
             y -= 20
-            c.setFont("Helvetica", 12)
             c.drawString(30, y, "Total number of items fit: ")
             c.setFont("Helvetica-Bold", 12)
             c.drawString(200, y, f"{sum(len(b.items) for b in packer.bins)}")
@@ -257,11 +256,11 @@ if st.button("Optimize Packing"):
 
         plot_columns[plot_index % 3].markdown(f"""
         <div class='plot-container'>
-            <div class='container-info'>Total number of items fit: <span class='bold-text'>{total_items_fit}</span></div>
-            <div class='container-info'>Percentage of volume utilized: <span class='bold-text'>{volume_utilized_percentage:.2f}%</span></div>
             <h2>{carton['Description']}</h2>
             <div class='container-dimensions'>({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})</div>
             <div class='container-info'>Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})</div>
+            <div class='container-info'>Total number of items fit: <span class='bold-text'>{total_items_fit}</span></div>
+            <div class='container-info'>Percentage of volume utilized: <span class='bold-text'>{volume_utilized_percentage:.2f}%</span></div>
         </div>
         """, unsafe_allow_html=True)
 
