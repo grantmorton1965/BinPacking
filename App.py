@@ -138,26 +138,21 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         y = height - 60
         c.setFont("Helvetica", 12)
         for index, carton in cartons_df.iterrows():
-            if y < 200:
+            if y < 350:  # Adjust the limit to fit the image within the page
                 c.showPage()
                 y = height - 40
-            storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
-            storage_volume = float(storage_unit.width * storage_unit.height * storage_unit.depth)
-            total_items_fit = sum(len(b.items) for b in packer.bins)
-            total_volume_utilized = float(total_items_fit * item_volume)
-            volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
             c.drawString(30, y, f"Container: {carton['Description']}")
             y -= 20
             c.drawString(30, y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
             y -= 20
-            c.drawString(30, y, f"Total number of items fit: {total_items_fit}")
+            c.drawString(30, y, f"Total number of items fit: {sum(len(b.items) for b in packer.bins)}")
             y -= 20
-            c.drawString(30, y, f"Percentage of volume utilized: {volume_utilized_percentage:.2f}%")
+            c.drawString(30, y, f"Percentage of volume utilized: {(sum(len(b.items) for b in packer.bins) * item_data['length'] * item_data['width'] * item_data['height'] / (carton['ID Length (in)'] * carton['ID Width (in)'] * carton['ID Height (in)'])):.2f}%")
             y -= 40
             if index < len(plot_images):
                 img = ImageReader(plot_images[index])
-                c.drawImage(img, 30, y - 300, width - 60, 300)
-                y -= 320
+                c.drawImage(img, 30, y - 250, width - 60, 250)  # Adjust the height to fit within the page
+                y -= 270
         if best_fit_container is not None:
             c.drawString(30, y, f"The best fit container is {best_fit_container['Description']} with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%")
         else:
