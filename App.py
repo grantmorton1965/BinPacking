@@ -172,12 +172,14 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.setFont("Helvetica", 12)
         if best_fit_container is not None:
             c.drawString(30, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of ")
+            y -= 15  # Adjust to move the percentage to a new line
             c.setFont("Helvetica-Bold", 12)
-            c.drawString(200, y, f"{best_fit_volume_utilized_percentage:.2f}%")
+            c.drawString(30, y, f"{best_fit_volume_utilized_percentage:.2f}%")
         else:
             c.drawString(30, y, "No suitable container found.")
         c.save()
         return tmpfile.name
+
 
 # Streamlit app layout
 st.title("Packing Optimization Report")
