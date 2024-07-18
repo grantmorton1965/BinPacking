@@ -161,22 +161,31 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             c.drawString(30, y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
             y -= 20
             c.drawString(30, y, "Total number of items fit: ")
-            c.setFont("Helvetica-Bold", 12)
-            c.drawString(200, y, f"{sum(len(b.items) for b in packer.bins)}")
-            y -= 20
-            c.setFont("Helvetica", 12)
-            c.drawString(30, y, "Percentage of volume utilized: ")
             
-            # Correct calculation of volume utilized percentage
+            # Correct calculation of the number of items and volume utilized
+            packer = Packer()
+            storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
+            packer.add_bin(storage_unit)
+            batch_items = [Item(item_data["name"], item_data["length"], item_data["width"], item_data["height"], item_data["weight"]) for _ in range(100)]
+            for item in batch_items:
+                packer.add_item(item)
+            packer.pack()
+
+            total_items_fit = sum(len(b.items) for b in packer.bins)
             storage_volume = float(carton['ID Length (in)'] * carton['ID Width (in)'] * carton['ID Height (in)'])
             item_volume = float(item_data['length'] * item_data['width'] * item_data['height'])
-            total_items_fit = sum(len(b.items) for b in packer.bins)
             total_volume_utilized = float(total_items_fit * item_volume)
             volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
 
             c.setFont("Helvetica-Bold", 12)
+            c.drawString(200, y, f"{total_items_fit}")
+            y -= 20
+            c.setFont("Helvetica", 12)
+            c.drawString(30, y, "Percentage of volume utilized: ")
+            c.setFont("Helvetica-Bold", 12)
             c.drawString(200, y, f"{volume_utilized_percentage:.2f}%")
             y -= 40
+
         c.setFont("Helvetica", 12)
         if best_fit_container is not None:
             c.drawString(30, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of ")
@@ -187,7 +196,6 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             c.drawString(30, y, "No suitable container found.")
         c.save()
         return tmpfile.name
-
 
 
 # Streamlit app layout
