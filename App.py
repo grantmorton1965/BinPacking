@@ -231,7 +231,7 @@ if st.button("Optimize Packing"):
         packer = Packer()
         packer.add_bin(storage_unit)
 
-        batch_size = 600
+        batch_size = 500
         num_batches = 1
 
         for i in range(num_batches):
@@ -271,7 +271,7 @@ if st.button("Optimize Packing"):
         packer = Packer()
         packer.add_bin(storage_unit)
 
-        batch_size = 600
+        batch_size = 500
         num_batches = 1
 
         for i in range(num_batches):
