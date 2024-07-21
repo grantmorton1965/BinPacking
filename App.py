@@ -1,4 +1,3 @@
-from concurrent.futures import ProcessPoolExecutor
 import streamlit as st
 import pandas as pd
 from py3dbp import Packer, Bin, Item
@@ -9,6 +8,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 import tempfile
+from concurrent.futures import ProcessPoolExecutor
 
 # Custom CSS to enhance the look
 def add_custom_css():
@@ -162,7 +162,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             c.drawString(30, y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
             y -= 20
             c.drawString(30, y, "Total number of items fit: ")
-
+            
             # Correct calculation of the number of items and volume utilized
             packer = Packer()
             storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
@@ -198,7 +198,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.save()
         return tmpfile.name
 
-def pack_items(carton, item_data, batch_size=100, num_batches=6):
+def pack_items(carton, item_data, batch_size=200, num_batches=6):
     storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
     packer = Packer()
     packer.add_bin(storage_unit)
@@ -276,11 +276,8 @@ if st.button("Optimize Packing"):
     plot_columns = []
     plot_images = []
 
-    batch_size = 200
-    num_batches = 6
-
     with ProcessPoolExecutor() as executor:
-        futures = [executor.submit(pack_items, carton, item_data, batch_size, num_batches) for index, carton in cartons_df.iterrows()]
+        futures = [executor.submit(pack_items, carton, item_data) for index, carton in cartons_df.iterrows()]
         results = [future.result() for future in futures]
 
     for result in results:
