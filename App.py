@@ -8,6 +8,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 import tempfile
+from concurrent.futures import ProcessPoolExecutor
 
 # Custom CSS to enhance the look
 def add_custom_css():
@@ -197,6 +198,58 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.save()
         return tmpfile.name
 
+def pack_items(carton, item_data, batch_size=300, num_batches=2):
+    storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
+    packer = Packer()
+    packer.add_bin(storage_unit)
+
+    for i in range(num_batches):
+        batch_items = [Item(item_data["name"], item_data["length"], item_data["width"], item_data["height"], item_data["weight"]) for _ in range(batch_size)]
+        for item in batch_items:
+            packer.add_item(item)
+
+    packer.pack()
+    storage_volume = float(storage_unit.width * storage_unit.height * storage_unit.depth)
+    item_volume = float(item_data["length"] * item_data["width"] * item_data["height"])
+    total_items_fit = sum(len(b.items) for b in packer.bins)
+    total_volume_utilized = float(total_items_fit * item_volume)
+    volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
+
+    return carton, total_items_fit, volume_utilized_percentage, storage_unit, packer
+
+def generate_plot(carton, item_data, storage_unit, packer, plot_column, plot_index, plot_images):
+    # Generate 3D plot
+    fig = plt.figure(figsize=(6, 5))
+    ax = fig.add_subplot(111, projection='3d')
+    for b in packer.bins:
+        for item in b.items:
+            color = get_random_color()
+            add_box(ax, item, color)
+    ax.set_xlim([0, carton['ID Length (in)']])
+    ax.set_ylim([0, carton['ID Width (in)']])
+    ax.set_zlim([0, carton['ID Height (in)']])
+    ax.set_box_aspect([carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)']])
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
+    ax.set_zticklabels([])
+    plt.tight_layout(pad=2.0)
+    plot_column.pyplot(fig)  # Display the plot in one of the three columns
+
+    # Save plot as image
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as plotfile:
+        fig.savefig(plotfile.name, format='png')
+        plot_images.append(plotfile.name)
+
+    plot_column.markdown(f"""
+    <div class='plot-container'>
+        <h2>{carton['Description']}</h2>
+        <div class='container-dimensions'>({round(carton['ID Length (in)'], 2)} x {round(carton['ID Width (in)'], 2)} x {round(carton['ID Height (in)'], 2)})</div>
+        <div class='container-info'>Package: {item_data['name']} ({round(item_data['length'], 2)} x {round(item_data['width'], 2)} x {round(item_data['height'], 2)})</div>
+        <div class='container-info'>Total number of items fit: <span class='bold-text'>{total_items_fit}</span></div>
+        <div class='container-info'>Percentage of volume utilized: <span class='bold-text'>{volume_utilized_percentage:.2f}%</span></div>
+    </div>
+    """, unsafe_allow_html=True)
+
 # Streamlit app layout
 st.title("Packing Optimization Report")
 
@@ -223,32 +276,22 @@ if st.button("Optimize Packing"):
     plot_columns = []
     plot_images = []
 
-    for index, carton in cartons_df.iterrows():
+    with ProcessPoolExecutor() as executor:
+        futures = [executor.submit(pack_items, carton, item_data) for index, carton in cartons_df.iterrows()]
+        results = [future.result() for future in futures]
+
+    for result in results:
+        carton, total_items_fit, volume_utilized_percentage, storage_unit, packer = result
+
         if plot_index % 3 == 0:
             plot_columns = st.columns(3)  # Create a new row of three columns
-
-        storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
-        packer = Packer()
-        packer.add_bin(storage_unit)
-
-        batch_size = 300
-        num_batches = 2
-
-        for i in range(num_batches):
-            batch_items = [Item(item_data["name"], item_data["length"], item_data["width"], item_data["height"], item_data["weight"]) for _ in range(batch_size)]
-            for item in batch_items:
-                packer.add_item(item)
-
-        packer.pack()
-        storage_volume = float(storage_unit.width * storage_unit.height * storage_unit.depth)
-        item_volume = float(item_data["length"] * item_data["width"] * item_data["height"])
-        total_items_fit = sum(len(b.items) for b in packer.bins)
-        total_volume_utilized = float(total_items_fit * item_volume)
-        volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
 
         if volume_utilized_percentage > best_fit_volume_utilized_percentage:
             best_fit_container = carton
             best_fit_volume_utilized_percentage = volume_utilized_percentage
+
+        generate_plot(carton, item_data, storage_unit, packer, plot_columns[plot_index % 3], plot_index, plot_images)
+        plot_index += 1
 
     if best_fit_container is not None:
         st.markdown(f"""
@@ -262,63 +305,6 @@ if st.button("Optimize Packing"):
             <div class='best-fit'>No suitable container found.</div>
         </div>
         """, unsafe_allow_html=True)
-
-    for index, carton in cartons_df.iterrows():
-        if plot_index % 3 == 0:
-            plot_columns = st.columns(3)  # Create a new row of three columns
-
-        storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
-        packer = Packer()
-        packer.add_bin(storage_unit)
-
-        batch_size = 300
-        num_batches = 2
-
-        for i in range(num_batches):
-            batch_items = [Item(item_data["name"], item_data["length"], item_data["width"], item_data["height"], item_data["weight"]) for _ in range(batch_size)]
-            for item in batch_items:
-                packer.add_item(item)
-
-        packer.pack()
-        storage_volume = float(storage_unit.width * storage_unit.height * storage_unit.depth)
-        item_volume = float(item_data["length"] * item_data["width"] * item_data["height"])
-        total_items_fit = sum(len(b.items) for b in packer.bins)
-        total_volume_utilized = float(total_items_fit * item_volume)
-        volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
-
-        # Generate 3D plot
-        fig = plt.figure(figsize=(6, 5))
-        ax = fig.add_subplot(111, projection='3d')
-        for b in packer.bins:
-            for item in b.items:
-                color = get_random_color()
-                add_box(ax, item, color)
-        ax.set_xlim([0, carton['ID Length (in)']])
-        ax.set_ylim([0, carton['ID Width (in)']])
-        ax.set_zlim([0, carton['ID Height (in)']])
-        ax.set_box_aspect([carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)']])
-        ax.set_xticklabels([])
-        ax.set_yticklabels([])
-        ax.set_zticklabels([])
-        plt.tight_layout(pad=2.0)
-        plot_columns[plot_index % 3].pyplot(fig)  # Display the plot in one of the three columns
-
-        # Save plot as image
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as plotfile:
-            fig.savefig(plotfile.name, format='png')
-            plot_images.append(plotfile.name)
-
-        plot_columns[plot_index % 3].markdown(f"""
-        <div class='plot-container'>
-            <h2>{carton['Description']}</h2>
-            <div class='container-dimensions'>({round(carton['ID Length (in)'], 2)} x {round(carton['ID Width (in)'], 2)} x {round(carton['ID Height (in)'], 2)})</div>
-            <div class='container-info'>Package: {item_data['name']} ({round(item_data['length'], 2)} x {round(item_data['width'], 2)} x {round(item_data['height'], 2)})</div>
-            <div class='container-info'>Total number of items fit: <span class='bold-text'>{total_items_fit}</span></div>
-            <div class='container-info'>Percentage of volume utilized: <span class='bold-text'>{volume_utilized_percentage:.2f}%</span></div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        plot_index += 1
 
     # Add button to save the report as a PDF
     pdf_file = save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utilized_percentage, plot_images)
