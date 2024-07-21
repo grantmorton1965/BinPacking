@@ -232,7 +232,7 @@ if st.button("Optimize Packing"):
         packer.add_bin(storage_unit)
 
         batch_size = 100
-        num_batches = 10
+        num_batches = 4
 
         for i in range(num_batches):
             batch_items = [Item(item_data["name"], item_data["length"], item_data["width"], item_data["height"], item_data["weight"]) for _ in range(batch_size)]
