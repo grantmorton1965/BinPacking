@@ -8,6 +8,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 
 # Custom CSS to enhance the look
 def add_custom_css():
@@ -166,7 +167,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             packer = Packer()
             storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
             packer.add_bin(storage_unit)
-            batch_items = [Item(item_data["name"], item_data["length"], item_data["width"], item_data["height"], item_data["weight"]) for _ in range(100)]
+            batch_items = [Item(item_data["name"], item_data["length"], item_data["width"], item_data["height"], item_data["weight"]) for _ in range(20)]
             for item in batch_items:
                 packer.add_item(item)
             packer.pack()
@@ -197,6 +198,25 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.save()
         return tmpfile.name
 
+def pack_carton(carton, item_data):
+    storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
+    packer = Packer()
+    packer.add_bin(storage_unit)
+
+    batch_size = 20
+    batch_items = [Item(item_data["name"], item_data["length"], item_data["width"], item_data["height"], item_data["weight"]) for _ in range(batch_size)]
+    for item in batch_items:
+        packer.add_item(item)
+
+    packer.pack()
+    storage_volume = float(storage_unit.width * storage_unit.height * storage_unit.depth)
+    item_volume = float(item_data["length"] * item_data["width"] * item_data["height"])
+    total_items_fit = sum(len(b.items) for b in packer.bins)
+    total_volume_utilized = float(total_items_fit * item_volume)
+    volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
+
+    return carton, total_items_fit, volume_utilized_percentage
+
 # Streamlit app layout
 st.title("Packing Optimization Report")
 
@@ -223,72 +243,29 @@ if st.button("Optimize Packing"):
     plot_columns = []
     plot_images = []
 
-    for index, carton in cartons_df.iterrows():
-        if plot_index % 3 == 0:
-            plot_columns = st.columns(3)  # Create a new row of three columns
+    with ThreadPoolExecutor() as executor:
+        results = list(executor.map(pack_carton, [carton for _, carton in cartons_df.iterrows()], [item_data] * len(cartons_df)))
 
-        storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
-        packer = Packer()
-        packer.add_bin(storage_unit)
-
-        batch_size = 100
-        num_batches = 10
-
-        for i in range(num_batches):
-            batch_items = [Item(item_data["name"], item_data["length"], item_data["width"], item_data["height"], item_data["weight"]) for _ in range(batch_size)]
-            for item in batch_items:
-                packer.add_item(item)
-
-        packer.pack()
-        storage_volume = float(storage_unit.width * storage_unit.height * storage_unit.depth)
-        item_volume = float(item_data["length"] * item_data["width"] * item_data["height"])
-        total_items_fit = sum(len(b.items) for b in packer.bins)
-        total_volume_utilized = float(total_items_fit * item_volume)
-        volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
+    for result in results:
+        carton, total_items_fit, volume_utilized_percentage = result
 
         if volume_utilized_percentage > best_fit_volume_utilized_percentage:
             best_fit_container = carton
             best_fit_volume_utilized_percentage = volume_utilized_percentage
 
-    if best_fit_container is not None:
-        st.markdown(f"""
-        <div class='report-container'>
-            <div class='best-fit'>The best fit is {best_fit_container["Description"]} ({round(best_fit_container['ID Length (in)'], 2)} x {round(best_fit_container['ID Width (in)'], 2)} x {round(best_fit_container['ID Height (in)'], 2)}) with a volume utilization of <span class='bold-text'>{best_fit_volume_utilized_percentage:.2f}%</span></div>
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        st.markdown("""
-        <div class='report-container'>
-            <div class='best-fit'>No suitable container found.</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    for index, carton in cartons_df.iterrows():
         if plot_index % 3 == 0:
             plot_columns = st.columns(3)  # Create a new row of three columns
-
-        storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
-        packer = Packer()
-        packer.add_bin(storage_unit)
-
-        batch_size = 100
-        num_batches = 10
-
-        for i in range(num_batches):
-            batch_items = [Item(item_data["name"], item_data["length"], item_data["width"], item_data["height"], item_data["weight"]) for _ in range(batch_size)]
-            for item in batch_items:
-                packer.add_item(item)
-
-        packer.pack()
-        storage_volume = float(storage_unit.width * storage_unit.height * storage_unit.depth)
-        item_volume = float(item_data["length"] * item_data["width"] * item_data["height"])
-        total_items_fit = sum(len(b.items) for b in packer.bins)
-        total_volume_utilized = float(total_items_fit * item_volume)
-        volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
 
         # Generate 3D plot
         fig = plt.figure(figsize=(6, 5))
         ax = fig.add_subplot(111, projection='3d')
+        storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
+        packer = Packer()
+        packer.add_bin(storage_unit)
+        batch_items = [Item(item_data["name"], item_data["length"], item_data["width"], item_data["height"], item_data["weight"]) for _ in range(20)]
+        for item in batch_items:
+            packer.add_item(item)
+        packer.pack()
         for b in packer.bins:
             for item in b.items:
                 color = get_random_color()
@@ -320,6 +297,19 @@ if st.button("Optimize Packing"):
 
         plot_index += 1
 
+    if best_fit_container is not None:
+        st.markdown(f"""
+        <div class='report-container'>
+            <div class='best-fit'>The best fit is {best_fit_container["Description"]} ({round(best_fit_container['ID Length (in)'], 2)} x {round(best_fit_container['ID Width (in)'], 2)} x {round(best_fit_container['ID Height (in)'], 2)}) with a volume utilization of <span class='bold-text'>{best_fit_volume_utilized_percentage:.2f}%</span></div>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div class='report-container'>
+            <div class='best-fit'>No suitable container found.</div>
+        </div>
+        """, unsafe_allow_html=True)
+
     # Add button to save the report as a PDF
     pdf_file = save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utilized_percentage, plot_images)
     with open(pdf_file, "rb") as file:
@@ -331,7 +321,6 @@ if st.button("Optimize Packing"):
         )
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
-
 
 
 
