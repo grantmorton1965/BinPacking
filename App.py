@@ -197,7 +197,6 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.save()
         return tmpfile.name
 
-
 # Streamlit app layout
 st.title("Packing Optimization Report")
 
@@ -309,7 +308,6 @@ if st.button("Optimize Packing"):
         )
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
-
 
 
 
