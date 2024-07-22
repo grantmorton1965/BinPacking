@@ -319,4 +319,3 @@ if st.button("Optimize Packing"):
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
 
 
-
