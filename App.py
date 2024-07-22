@@ -141,25 +141,32 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmpfile:
         c = canvas.Canvas(tmpfile.name, pagesize=letter)
         width, height = letter
+        margin = 40
+        line_height = 14
+        y = height - margin
+
         c.setFont("Helvetica-Bold", 16)
-        c.drawString(30, height - 40, "Packing Optimization Report")
-        y = height - 60
+        c.drawString(margin, y, "Packing Optimization Report")
+        y -= 30
+
         c.setFont("Helvetica", 12)
-        
+
         for index, carton in cartons_df.iterrows():
-            if y < 200:  # Adjust the limit to fit the image within the page
+            if y < margin + 200:  # Add new page if the content exceeds the page limit
                 c.showPage()
-                y = height - 40
-            c.drawString(30, y, f"{carton['Description']}")
-            y -= 20
+                y = height - margin
+                c.setFont("Helvetica", 12)
+
+            c.drawString(margin, y, f"{carton['Description']}")
+            y -= line_height
             c.setFont("Helvetica", 10)
-            c.drawString(30, y, f"({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})")
-            y -= 20
+            c.drawString(margin, y, f"({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})")
+            y -= line_height
             c.setFont("Helvetica", 12)
-            c.drawString(30, y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
-            y -= 20
-            c.drawString(30, y, "Total number of items fit: ")
-            
+            c.drawString(margin, y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
+            y -= line_height
+            c.drawString(margin, y, "Total number of items fit: ")
+
             # Correct calculation of the number of items and volume utilized
             packer = Packer()
             storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
@@ -176,28 +183,32 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
 
             c.setFont("Helvetica-Bold", 12)
-            c.drawString(200, y, f"{total_items_fit}")
-            y -= 20
+            c.drawString(margin + 170, y, f"{total_items_fit}")
+            y -= line_height
             c.setFont("Helvetica", 12)
-            c.drawString(30, y, "Percentage of volume utilized: ")
+            c.drawString(margin, y, "Percentage of volume utilized: ")
             c.setFont("Helvetica-Bold", 12)
-            c.drawString(200, y, f"{volume_utilized_percentage:.2f}%")
-            y -= 40
+            c.drawString(margin + 170, y, f"{volume_utilized_percentage:.2f}%")
+            y -= line_height + 10
 
             # Add the image if available
             if index < len(plot_images):
                 img = ImageReader(plot_images[index])
-                c.drawImage(img, 30, y - 250, width - 60, 250, preserveAspectRatio=True, mask='auto')  # Adjust the height to fit within the page
-                y -= 270
+                img_height = 250  # Fixed height for the image
+                if y < margin + img_height:
+                    c.showPage()
+                    y = height - margin
+                c.drawImage(img, margin, y - img_height, width - 2 * margin, img_height, preserveAspectRatio=True, mask='auto')
+                y -= img_height + 20
 
         c.setFont("Helvetica", 12)
         if best_fit_container is not None:
-            c.drawString(30, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of ")
-            y -= 15  # Adjust to move the percentage to a new line
+            c.drawString(margin, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of ")
+            y -= line_height
             c.setFont("Helvetica-Bold", 12)
-            c.drawString(30, y, f"{best_fit_volume_utilized_percentage:.2f}%")
+            c.drawString(margin, y, f"{best_fit_volume_utilized_percentage:.2f}%")
         else:
-            c.drawString(30, y, "No suitable container found.")
+            c.drawString(margin, y, "No suitable container found.")
         c.save()
         return tmpfile.name
 
