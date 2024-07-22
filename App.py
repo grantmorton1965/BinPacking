@@ -146,7 +146,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         y = height - 60
         c.setFont("Helvetica", 12)
         for index, carton in cartons_df.iterrows():
-            if y < 150:  # Adjust the limit to fit the image within the page
+            if y < 200:  # Adjust the limit to fit the image within the page
                 c.showPage()
                 y = height - 40
             c.drawString(30, y, f"{carton['Description']}")
