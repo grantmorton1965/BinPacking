@@ -141,7 +141,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmpfile:
         c = canvas.Canvas(tmpfile.name, pagesize=letter)
         width, height = letter
-        c.setFont("Helvetica", 16)
+        c.setFont("Helvetica-Bold", 16)
         c.drawString(30, height - 40, "Packing Optimization Report")
         y = height - 60
         c.setFont("Helvetica", 12)
@@ -317,7 +317,6 @@ if st.button("Optimize Packing"):
         )
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
-
 
 
 
