@@ -147,10 +147,9 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.setFont("Helvetica", 12)
         
         for index, carton in cartons_df.iterrows():
-            if index < len(plot_images):
-                img = ImageReader(plot_images[index])
-                c.drawImage(img, 30, y - 250, width - 60, 250, preserveAspectRatio=True, mask='auto')  # Adjust the height to fit within the page
-                y -= 270
+            if y < 200:  # Adjust the limit to fit the image within the page
+                c.showPage()
+                y = height - 40
             c.drawString(30, y, f"{carton['Description']}")
             y -= 20
             c.setFont("Helvetica", 10)
@@ -184,6 +183,12 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             c.setFont("Helvetica-Bold", 12)
             c.drawString(200, y, f"{volume_utilized_percentage:.2f}%")
             y -= 40
+
+            # Add the image if available
+            if index < len(plot_images):
+                img = ImageReader(plot_images[index])
+                c.drawImage(img, 30, y - 250, width - 60, 250, preserveAspectRatio=True, mask='auto')  # Adjust the height to fit within the page
+                y -= 270
 
         c.setFont("Helvetica", 12)
         if best_fit_container is not None:
@@ -315,7 +320,6 @@ if st.button("Optimize Packing"):
         )
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
-
 
 
 
