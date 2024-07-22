@@ -7,6 +7,8 @@ import numpy as np
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
 import tempfile
 from concurrent.futures import ProcessPoolExecutor
 
@@ -145,11 +147,16 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         line_height = 14
         y = height - margin
 
+        styles = getSampleStyleSheet()
+        normal_style = styles['Normal']
+        bold_style = styles['Heading2']
         c.setFont("Helvetica-Bold", 16)
+        c.setFillColor(colors.HexColor("#003366"))
         c.drawString(margin, y, "Packing Optimization Report")
         y -= 30
 
         c.setFont("Helvetica", 12)
+        c.setFillColor(colors.black)
 
         for index, carton in cartons_df.iterrows():
             if y < margin + 200:  # Add new page if the content exceeds the page limit
@@ -157,12 +164,16 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
                 y = height - margin
                 c.setFont("Helvetica", 12)
 
+            c.setFont("Helvetica-Bold", 12)
+            c.setFillColor(colors.HexColor("#003366"))
             c.drawString(margin, y, f"{carton['Description']}")
             y -= line_height
             c.setFont("Helvetica", 10)
+            c.setFillColor(colors.HexColor("#555555"))
             c.drawString(margin, y, f"({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})")
             y -= line_height
             c.setFont("Helvetica", 12)
+            c.setFillColor(colors.black)
             c.drawString(margin, y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
             y -= line_height
             c.drawString(margin, y, "Total number of items fit: ")
@@ -202,6 +213,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
                 y -= img_height + 20
 
         c.setFont("Helvetica", 12)
+        c.setFillColor(colors.black)
         if best_fit_container is not None:
             c.drawString(margin, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of ")
             y -= line_height
