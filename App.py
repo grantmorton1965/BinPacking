@@ -145,10 +145,12 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.drawString(30, height - 40, "Packing Optimization Report")
         y = height - 60
         c.setFont("Helvetica", 12)
+        
         for index, carton in cartons_df.iterrows():
-            if y < 200:  # Adjust the limit to fit the image within the page
-                c.showPage()
-                y = height - 40
+            if index < len(plot_images):
+                img = ImageReader(plot_images[index])
+                c.drawImage(img, 30, y - 250, width - 60, 250, preserveAspectRatio=True, mask='auto')  # Adjust the height to fit within the page
+                y -= 270
             c.drawString(30, y, f"{carton['Description']}")
             y -= 20
             c.setFont("Helvetica", 10)
@@ -183,12 +185,6 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             c.drawString(200, y, f"{volume_utilized_percentage:.2f}%")
             y -= 40
 
-            # Add the image if available
-            if index < len(plot_images):
-                img = ImageReader(plot_images[index])
-                c.drawImage(img, 30, y - 150, width - 60, 150)  # Adjust the height to fit within the page
-                y -= 170
-
         c.setFont("Helvetica", 12)
         if best_fit_container is not None:
             c.drawString(30, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of ")
@@ -221,7 +217,7 @@ def pack_items(carton, item_data, batch_size=200, num_batches=6):
 
 def generate_plot(carton, item_data, storage_unit, packer, plot_column, plot_index, plot_images):
     # Generate 3D plot
-    fig = plt.figure(figsize=(6, 5))
+    fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111, projection='3d')
     for b in packer.bins:
         for item in b.items:
@@ -319,6 +315,7 @@ if st.button("Optimize Packing"):
         )
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
+
 
 
 
