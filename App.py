@@ -159,7 +159,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.setFillColor(colors.black)
 
         # Add the best fit utilization at the top
-       if best_fit_container is not None:
+        if best_fit_container is not None:
             c.setFont("Helvetica-Bold", 12)
             c.setFillColor(colors.red)
             c.drawString(margin, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of ")
