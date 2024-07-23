@@ -147,9 +147,16 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         line_height = 14
         y = height - margin
 
+        def draw_page_border():
+            c.setStrokeColor(colors.HexColor("#003366"))
+            c.setLineWidth(1)
+            c.rect(margin/2, margin/2, width - margin, height - margin)
+
         styles = getSampleStyleSheet()
         normal_style = styles['Normal']
         bold_style = styles['Heading2']
+        draw_page_border()
+        
         c.setFont("Helvetica-Bold", 16)
         c.setFillColor(colors.HexColor("#003366"))
         c.drawString(margin, y, "Packing Optimization Report")
@@ -181,6 +188,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
                 c.showPage()
                 y = height - margin
                 c.setFont("Helvetica", 12)
+                draw_page_border()
 
             # Add the image if available
             if index < len(plot_images):
@@ -228,6 +236,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
 
         c.save()
         return tmpfile.name
+
 
 
 
