@@ -165,18 +165,23 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.drawString((width - title_width) / 2, y, title)
         y -= 30
 
-        # Add the best fit utilization at the top in red color
+        # Add the best fit utilization at the top in red color and center it
         if best_fit_container is not None:
             c.setFont("Helvetica-Bold", 12)
             c.setFillColor(colors.red)
-            c.drawString(margin, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of ")
+            best_fit_text = f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of "
+            best_fit_width = c.stringWidth(best_fit_text, "Helvetica-Bold", 12)
+            c.drawString((width - best_fit_width) / 2, y, best_fit_text)
             y -= line_height
-            c.setFont("Helvetica-Bold", 12)
-            c.drawString(margin, y, f"{best_fit_volume_utilized_percentage:.2f}%")
+            utilization_text = f"{best_fit_volume_utilized_percentage:.2f}%"
+            utilization_width = c.stringWidth(utilization_text, "Helvetica-Bold", 12)
+            c.drawString((width - utilization_width) / 2, y, utilization_text)
             y -= 30
         else:
+            no_fit_text = "No suitable container found."
+            no_fit_width = c.stringWidth(no_fit_text, "Helvetica-Bold", 12)
             c.setFillColor(colors.red)
-            c.drawString(margin, y, "No suitable container found.")
+            c.drawString((width - no_fit_width) / 2, y, no_fit_text)
             y -= 30
 
         c.setFont("Helvetica", 12)
@@ -239,6 +244,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
 
         c.save()
         return tmpfile.name
+
 
 
 
