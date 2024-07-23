@@ -155,17 +155,17 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.drawString(margin, y, "Packing Optimization Report")
         y -= 30
 
-        c.setFont("Helvetica", 12)
-        c.setFillColor(colors.black)
-
-        # Add the best fit utilization at the top
+        # Add the best fit utilization at the top in red color
         if best_fit_container is not None:
+            c.setFont("Helvetica-Bold", 12)
+            c.setFillColor(colors.red)
             c.drawString(margin, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of ")
             y -= line_height
             c.setFont("Helvetica-Bold", 12)
             c.drawString(margin, y, f"{best_fit_volume_utilized_percentage:.2f}%")
             y -= 30
         else:
+            c.setFillColor(colors.red)
             c.drawString(margin, y, "No suitable container found.")
             y -= 30
 
@@ -229,18 +229,6 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.save()
         return tmpfile.name
 
-
-        c.setFont("Helvetica", 12)
-        c.setFillColor(colors.black)
-        if best_fit_container is not None:
-            c.drawString(margin, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of ")
-            y -= line_height
-            c.setFont("Helvetica-Bold", 12)
-            c.drawString(margin, y, f"{best_fit_volume_utilized_percentage:.2f}%")
-        else:
-            c.drawString(margin, y, "No suitable container found.")
-        c.save()
-        return tmpfile.name
 
 def pack_items(carton, item_data, batch_size=200, num_batches=6):
     storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
