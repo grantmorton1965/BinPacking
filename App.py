@@ -155,10 +155,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.drawString(margin, y, "Packing Optimization Report")
         y -= 30
 
-        c.setFont("Helvetica", 12)
-        c.setFillColor(colors.black)
-
-        # Add the best fit utilization at the top
+        # Add the best fit utilization at the top in red color
         if best_fit_container is not None:
             c.setFont("Helvetica-Bold", 12)
             c.setFillColor(colors.red)
@@ -168,6 +165,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             c.drawString(margin, y, f"{best_fit_volume_utilized_percentage:.2f}%")
             y -= 30
         else:
+            c.setFillColor(colors.red)
             c.drawString(margin, y, "No suitable container found.")
             y -= 30
 
@@ -179,6 +177,16 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
                 c.showPage()
                 y = height - margin
                 c.setFont("Helvetica", 12)
+
+            # Add the image if available
+            if index < len(plot_images):
+                img = ImageReader(plot_images[index])
+                img_height = 250  # Fixed height for the image
+                if y < margin + img_height:
+                    c.showPage()
+                    y = height - margin
+                c.drawImage(img, margin, y - img_height, width - 2 * margin, img_height, preserveAspectRatio=True, mask='auto')
+                y -= img_height + 20
 
             c.setFont("Helvetica-Bold", 12)
             c.setFillColor(colors.HexColor("#003366"))
@@ -218,18 +226,9 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             c.drawString(margin + 170, y, f"{volume_utilized_percentage:.2f}%")
             y -= line_height + 10
 
-            # Add the image if available
-            if index < len(plot_images):
-                img = ImageReader(plot_images[index])
-                img_height = 250  # Fixed height for the image
-                if y < margin + img_height:
-                    c.showPage()
-                    y = height - margin
-                c.drawImage(img, margin, y - img_height, width - 2 * margin, img_height, preserveAspectRatio=True, mask='auto')
-                y -= img_height + 20
-
         c.save()
         return tmpfile.name
+
 
 
 def pack_items(carton, item_data, batch_size=200, num_batches=6):
