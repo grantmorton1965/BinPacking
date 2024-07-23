@@ -157,9 +157,12 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         bold_style = styles['Heading2']
         draw_page_border()
         
+        # Center the title
+        title = "Packing Optimization Report"
         c.setFont("Helvetica-Bold", 16)
         c.setFillColor(colors.HexColor("#003366"))
-        c.drawString(margin, y, "Packing Optimization Report")
+        title_width = c.stringWidth(title, "Helvetica-Bold", 16)
+        c.drawString((width - title_width) / 2, y, title)
         y -= 30
 
         # Add the best fit utilization at the top in red color
@@ -236,6 +239,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
 
         c.save()
         return tmpfile.name
+
 
 
 
