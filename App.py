@@ -173,7 +173,11 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.setFillColor(colors.black)
 
         for index, carton in cartons_df.iterrows():
-            if y < margin + 200:  # Add new page if the content exceeds the page limit
+            img_height = 250  # Fixed height for the image
+            needed_height = img_height + 5 * line_height + 50  # Space needed for image and description
+
+            # Add new page if the content exceeds the page limit
+            if y < margin + needed_height:
                 c.showPage()
                 y = height - margin
                 c.setFont("Helvetica", 12)
@@ -181,12 +185,8 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             # Add the image if available
             if index < len(plot_images):
                 img = ImageReader(plot_images[index])
-                img_height = 250  # Fixed height for the image
-                if y < margin + img_height:
-                    c.showPage()
-                    y = height - margin
                 c.drawImage(img, margin, y - img_height, width - 2 * margin, img_height, preserveAspectRatio=True, mask='auto')
-                y -= img_height + 20
+                y -= img_height + 10
 
             c.setFont("Helvetica-Bold", 12)
             c.setFillColor(colors.HexColor("#003366"))
