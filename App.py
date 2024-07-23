@@ -158,6 +158,20 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.setFont("Helvetica", 12)
         c.setFillColor(colors.black)
 
+        # Add the best fit utilization at the top
+        if best_fit_container is not None:
+            c.drawString(margin, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of ")
+            y -= line_height
+            c.setFont("Helvetica-Bold", 12)
+            c.drawString(margin, y, f"{best_fit_volume_utilized_percentage:.2f}%")
+            y -= 30
+        else:
+            c.drawString(margin, y, "No suitable container found.")
+            y -= 30
+
+        c.setFont("Helvetica", 12)
+        c.setFillColor(colors.black)
+
         for index, carton in cartons_df.iterrows():
             if y < margin + 200:  # Add new page if the content exceeds the page limit
                 c.showPage()
@@ -211,6 +225,10 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
                     y = height - margin
                 c.drawImage(img, margin, y - img_height, width - 2 * margin, img_height, preserveAspectRatio=True, mask='auto')
                 y -= img_height + 20
+
+        c.save()
+        return tmpfile.name
+
 
         c.setFont("Helvetica", 12)
         c.setFillColor(colors.black)
