@@ -155,8 +155,11 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.drawString(margin, y, "Packing Optimization Report")
         y -= 30
 
-        # Add the best fit utilization at the top in red color
-        if best_fit_container is not None:
+        c.setFont("Helvetica", 12)
+        c.setFillColor(colors.black)
+
+        # Add the best fit utilization at the top
+       if best_fit_container is not None:
             c.setFont("Helvetica-Bold", 12)
             c.setFillColor(colors.red)
             c.drawString(margin, y, f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of ")
@@ -165,7 +168,6 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             c.drawString(margin, y, f"{best_fit_volume_utilized_percentage:.2f}%")
             y -= 30
         else:
-            c.setFillColor(colors.red)
             c.drawString(margin, y, "No suitable container found.")
             y -= 30
 
@@ -349,6 +351,5 @@ if st.button("Optimize Packing"):
         )
 
 st.markdown("<div class='footer'>&copy; 2024 Packing Optimization Report</div>", unsafe_allow_html=True)
-
 
 
