@@ -147,7 +147,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         line_height = 14
         y = height - margin
         col_width = (width - 2 * margin) / 3
-        row_height = (height - 2 * margin - 80) / 2  # Adjusted for title and footer
+        row_height = (height - 2 * margin - 100) / 2  # Adjusted for title and footer
 
         def draw_page_border():
             c.setStrokeColor(colors.HexColor("#003366"))
@@ -165,7 +165,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.setFillColor(colors.HexColor("#003366"))
         title_width = c.stringWidth(title, "Helvetica-Bold", 16)
         c.drawString((width - title_width) / 2, y, title)
-        y -= 30
+        y -= 20
 
         # Add the best fit utilization at the top in red color and center it
         if best_fit_container is not None:
@@ -178,13 +178,13 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             utilization_text = f"{best_fit_volume_utilized_percentage:.2f}%"
             utilization_width = c.stringWidth(utilization_text, "Helvetica-Bold", 12)
             c.drawString((width - utilization_width) / 2, y, utilization_text)
-            y -= 30
+            y -= 20
         else:
             no_fit_text = "No suitable container found."
             no_fit_width = c.stringWidth(no_fit_text, "Helvetica-Bold", 12)
             c.setFillColor(colors.red)
             c.drawString((width - no_fit_width) / 2, y, no_fit_text)
-            y -= 30
+            y -= 20
 
         c.setFont("Helvetica", 12)
         c.setFillColor(colors.black)
@@ -203,16 +203,21 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
                 img = ImageReader(plot_images[index])
                 c.drawImage(img, img_x, img_y - img_height, col_width - 10, img_height, preserveAspectRatio=True, mask='auto')
 
+            text_y = img_y - img_height - line_height
+
             c.setFont("Helvetica-Bold", 12)
             c.setFillColor(colors.HexColor("#003366"))
-            c.drawString(img_x, img_y - img_height - line_height, f"{carton['Description']}")
+            c.drawString(img_x, text_y, f"{carton['Description']}")
+            text_y -= line_height
             c.setFont("Helvetica", 10)
             c.setFillColor(colors.HexColor("#555555"))
-            c.drawString(img_x, img_y - img_height - 2 * line_height, f"({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})")
+            c.drawString(img_x, text_y, f"({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})")
+            text_y -= line_height
             c.setFont("Helvetica", 12)
             c.setFillColor(colors.black)
-            c.drawString(img_x, img_y - img_height - 3 * line_height, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
-            c.drawString(img_x, img_y - img_height - 4 * line_height, "Total number of items fit: ")
+            c.drawString(img_x, text_y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
+            text_y -= line_height
+            c.drawString(img_x, text_y, "Total number of items fit: ")
 
             # Correct calculation of the number of items and volume utilized
             packer = Packer()
@@ -230,14 +235,17 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
 
             c.setFont("Helvetica-Bold", 12)
-            c.drawString(img_x + 170, img_y - img_height - 4 * line_height, f"{total_items_fit}")
+            c.drawString(img_x + 170, text_y, f"{total_items_fit}")
+            text_y -= line_height
             c.setFont("Helvetica", 12)
-            c.drawString(img_x, img_y - img_height - 5 * line_height, "Percentage of volume utilized: ")
+            c.drawString(img_x, text_y, "Percentage of volume utilized: ")
             c.setFont("Helvetica-Bold", 12)
-            c.drawString(img_x + 170, img_y - img_height - 5 * line_height, f"{volume_utilized_percentage:.2f}%")
+            c.drawString(img_x + 170, text_y, f"{volume_utilized_percentage:.2f}%")
+            text_y -= line_height
 
         c.save()
         return tmpfile.name
+
 
 
 
