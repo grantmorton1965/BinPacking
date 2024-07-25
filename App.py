@@ -146,6 +146,8 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         margin = 40
         line_height = 14
         y = height - margin
+        col_width = (width - 2 * margin) / 3
+        row_height = (height - 2 * margin - 80) / 2  # Adjusted for title and footer
 
         def draw_page_border():
             c.setStrokeColor(colors.HexColor("#003366"))
@@ -188,35 +190,29 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.setFillColor(colors.black)
 
         for index, carton in cartons_df.iterrows():
-            img_height = 250  # Fixed height for the image
-            needed_height = img_height + 5 * line_height + 50  # Space needed for image and description
+            col = index % 3
+            row = index // 3
+            img_x = margin + col * col_width
+            img_y = y - row * row_height - row_height / 2
 
-            # Add new page if the content exceeds the page limit
-            if y < margin + needed_height:
-                c.showPage()
-                y = height - margin
-                c.setFont("Helvetica", 12)
-                draw_page_border()
+            img_height = row_height / 2  # Adjusted height for the image
+            needed_height = img_height + 5 * line_height + 10  # Space needed for image and description
 
             # Add the image if available
             if index < len(plot_images):
                 img = ImageReader(plot_images[index])
-                c.drawImage(img, margin, y - img_height, width - 2 * margin, img_height, preserveAspectRatio=True, mask='auto')
-                y -= img_height + 10
+                c.drawImage(img, img_x, img_y - img_height, col_width - 10, img_height, preserveAspectRatio=True, mask='auto')
 
             c.setFont("Helvetica-Bold", 12)
             c.setFillColor(colors.HexColor("#003366"))
-            c.drawString(margin, y, f"{carton['Description']}")
-            y -= line_height
+            c.drawString(img_x, img_y - img_height - line_height, f"{carton['Description']}")
             c.setFont("Helvetica", 10)
             c.setFillColor(colors.HexColor("#555555"))
-            c.drawString(margin, y, f"({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})")
-            y -= line_height
+            c.drawString(img_x, img_y - img_height - 2 * line_height, f"({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})")
             c.setFont("Helvetica", 12)
             c.setFillColor(colors.black)
-            c.drawString(margin, y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
-            y -= line_height
-            c.drawString(margin, y, "Total number of items fit: ")
+            c.drawString(img_x, img_y - img_height - 3 * line_height, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
+            c.drawString(img_x, img_y - img_height - 4 * line_height, "Total number of items fit: ")
 
             # Correct calculation of the number of items and volume utilized
             packer = Packer()
@@ -234,16 +230,15 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
 
             c.setFont("Helvetica-Bold", 12)
-            c.drawString(margin + 170, y, f"{total_items_fit}")
-            y -= line_height
+            c.drawString(img_x + 170, img_y - img_height - 4 * line_height, f"{total_items_fit}")
             c.setFont("Helvetica", 12)
-            c.drawString(margin, y, "Percentage of volume utilized: ")
+            c.drawString(img_x, img_y - img_height - 5 * line_height, "Percentage of volume utilized: ")
             c.setFont("Helvetica-Bold", 12)
-            c.drawString(margin + 170, y, f"{volume_utilized_percentage:.2f}%")
-            y -= line_height + 10
+            c.drawString(img_x + 170, img_y - img_height - 5 * line_height, f"{volume_utilized_percentage:.2f}%")
 
         c.save()
         return tmpfile.name
+
 
 
 
