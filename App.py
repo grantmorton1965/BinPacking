@@ -147,7 +147,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         line_height = 14
         y = height - margin
         col_width = (width - 2 * margin) / 3
-        row_height = (height - 2 * margin - 120) / 2  # Adjusted for title and footer
+        row_height = (height - 2 * margin - 100) / 2  # Adjusted for title and footer
 
         def draw_page_border():
             c.setStrokeColor(colors.HexColor("#003366"))
@@ -165,7 +165,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.setFillColor(colors.HexColor("#003366"))
         title_width = c.stringWidth(title, "Helvetica-Bold", 16)
         c.drawString((width - title_width) / 2, y, title)
-        y -= 20
+        y -= 18
 
         # Add the best fit utilization at the top in red color and center it
         if best_fit_container is not None:
@@ -178,19 +178,19 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             utilization_text = f"{best_fit_volume_utilized_percentage:.2f}%"
             utilization_width = c.stringWidth(utilization_text, "Helvetica-Bold", 12)
             c.drawString((width - utilization_width) / 2, y, utilization_text)
-            y -= 10  # Reduced space here
+            y -= 8  # Reduced space here
         else:
             no_fit_text = "No suitable container found."
             no_fit_width = c.stringWidth(no_fit_text, "Helvetica-Bold", 12)
             c.setFillColor(colors.red)
             c.drawString((width - no_fit_width) / 2, y, no_fit_text)
-            y -= 10  # Reduced space here
+            y -= 8  # Reduced space here
 
         c.setFont("Helvetica", 12)
         c.setFillColor(colors.black)
 
         # Adjust starting position for charts
-        y -= 10
+        y -= 5
 
         for index, carton in cartons_df.iterrows():
             col = index % 3
@@ -248,6 +248,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
 
         c.save()
         return tmpfile.name
+
 
 
 
