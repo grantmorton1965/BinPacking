@@ -147,7 +147,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         line_height = 14
         y = height - margin
         col_width = (width - 2 * margin) / 3
-        row_height = (height - 2 * margin - 100) / 2  # Adjusted for title and footer
+        row_height = (height - 2 * margin - 60) / 2  # Adjusted for title and footer
 
         def draw_page_border():
             c.setStrokeColor(colors.HexColor("#003366"))
@@ -190,7 +190,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.setFillColor(colors.black)
 
         # Adjust starting position for charts
-        y -= 5
+        y -= 10
 
         for index, carton in cartons_df.iterrows():
             col = index % 3
@@ -198,7 +198,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             img_x = margin + col * col_width
             img_y = y - row * row_height - row_height / 2
 
-            img_height = row_height / 2  # Adjusted height for the image
+            img_height = row_height / 1.8  # Increased height for the image
             needed_height = img_height + 5 * line_height + 10  # Space needed for image and description
 
             # Add the image if available
