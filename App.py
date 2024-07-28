@@ -194,7 +194,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             img_x = margin + col * col_width
             img_y = y - row * row_height - row_height / 2
 
-            img_height = row_height / 2  # Increased height for the image
+            img_height = row_height / 2  # Adjusted height for the image
             needed_height = img_height + 5 * 14 + 10  # Space needed for image and description
 
             # Add the image if available
@@ -245,9 +245,14 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             # Move to the next row if necessary
             if col == 2:
                 y -= row_height
+                if y < margin:
+                    c.showPage()
+                    draw_page_border()
+                    y = height - margin
 
         c.save()
         return tmpfile.name
+
 
 
 
