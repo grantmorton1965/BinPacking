@@ -190,7 +190,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             col = index % 3
             row = index // 3
             img_x = margin + col * col_width
-            img_y = current_y - row * row_height
+            img_y = current_y - (row * row_height)
 
             img_height = row_height / 2  # Adjusted height for the image
             text_y_start = img_y - img_height - 14
@@ -241,7 +241,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             text_y -= 14
 
             # Move to the next row if necessary
-            if col == 2:
+            if col == 2 and row % 2 == 1:
                 current_y -= row_height
                 if current_y < margin + row_height:
                     c.showPage()
