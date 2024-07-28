@@ -144,10 +144,9 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c = canvas.Canvas(tmpfile.name, pagesize=letter)
         width, height = letter
         margin = 40
-        line_height = 14
-        y = height - margin
         col_width = (width - 2 * margin) / 3
         row_height = (height - 2 * margin - 60) / 2  # Adjusted for title and footer
+        y = height - margin
 
         def draw_page_border():
             c.setStrokeColor(colors.HexColor("#003366"))
@@ -155,8 +154,6 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             c.rect(margin / 2, margin / 2, width - margin, height - margin)
 
         styles = getSampleStyleSheet()
-        normal_style = styles['Normal']
-        bold_style = styles['Heading2']
         draw_page_border()
 
         # Center the title
@@ -174,23 +171,22 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             best_fit_text = f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of "
             best_fit_width = c.stringWidth(best_fit_text, "Helvetica-Bold", 12)
             c.drawString((width - best_fit_width) / 2, y, best_fit_text)
-            y -= line_height
+            y -= 14
             utilization_text = f"{best_fit_volume_utilized_percentage:.2f}%"
             utilization_width = c.stringWidth(utilization_text, "Helvetica-Bold", 12)
             c.drawString((width - utilization_width) / 2, y, utilization_text)
-            y -= 8  # Reduced space here
+            y -= 8
         else:
             no_fit_text = "No suitable container found."
             no_fit_width = c.stringWidth(no_fit_text, "Helvetica-Bold", 12)
             c.setFillColor(colors.red)
             c.drawString((width - no_fit_width) / 2, y, no_fit_text)
-            y -= 8  # Reduced space here
+            y -= 8
 
         c.setFont("Helvetica", 12)
         c.setFillColor(colors.black)
 
-        # Adjust starting position for charts
-        y -= 10
+        y -= 10  # Adjust starting position for charts
 
         for index, carton in cartons_df.iterrows():
             col = index % 3
@@ -199,27 +195,27 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             img_y = y - row * row_height - row_height / 2
 
             img_height = row_height / 1.8  # Increased height for the image
-            needed_height = img_height + 5 * line_height + 10  # Space needed for image and description
+            needed_height = img_height + 5 * 14 + 10  # Space needed for image and description
 
             # Add the image if available
             if index < len(plot_images):
                 img = ImageReader(plot_images[index])
                 c.drawImage(img, img_x, img_y - img_height, col_width - 10, img_height, preserveAspectRatio=True, mask='auto')
 
-            text_y = img_y - img_height - line_height
+            text_y = img_y - img_height - 14
 
             c.setFont("Helvetica-Bold", 12)
             c.setFillColor(colors.HexColor("#003366"))
             c.drawString(img_x, text_y, f"{carton['Description']}")
-            text_y -= line_height
+            text_y -= 14
             c.setFont("Helvetica", 10)
             c.setFillColor(colors.HexColor("#555555"))
             c.drawString(img_x, text_y, f"({carton['ID Length (in)']} x {carton['ID Width (in)']} x {carton['ID Height (in)']})")
-            text_y -= line_height
+            text_y -= 14
             c.setFont("Helvetica", 12)
             c.setFillColor(colors.black)
             c.drawString(img_x, text_y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
-            text_y -= line_height
+            text_y -= 14
             c.drawString(img_x, text_y, "Total number of items fit: ")
 
             # Correct calculation of the number of items and volume utilized
@@ -239,15 +235,20 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
 
             c.setFont("Helvetica-Bold", 12)
             c.drawString(img_x + 170, text_y, f"{total_items_fit}")
-            text_y -= line_height
+            text_y -= 14
             c.setFont("Helvetica", 12)
             c.drawString(img_x, text_y, "Percentage of volume utilized: ")
             c.setFont("Helvetica-Bold", 12)
             c.drawString(img_x + 170, text_y, f"{volume_utilized_percentage:.2f}%")
-            text_y -= line_height
+            text_y -= 14
 
         c.save()
         return tmpfile.name
+
+
+
+
+
 
 def pack_items(carton, item_data, batch_size=200, num_batches=6):
     storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
