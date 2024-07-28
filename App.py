@@ -145,7 +145,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         width, height = letter
         margin = 40
         col_width = (width - 2 * margin) / 3
-        row_height = (height - 2 * margin - 60) / 2  # Adjusted for title and footer
+        row_height = (height - 2 * margin - 80) / 2  # Adjusted for title and footer
         y = height - margin
 
         def draw_page_border():
@@ -168,25 +168,22 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         if best_fit_container is not None:
             c.setFont("Helvetica-Bold", 12)
             c.setFillColor(colors.red)
-            best_fit_text = f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of "
+            best_fit_text = f"The best fit is {best_fit_container['Description']} ({best_fit_container['ID Length (in)']} x {best_fit_container['ID Width (in)']} x {best_fit_container['ID Height (in)']}) with a volume utilization of {best_fit_volume_utilized_percentage:.2f}%"
             best_fit_width = c.stringWidth(best_fit_text, "Helvetica-Bold", 12)
             c.drawString((width - best_fit_width) / 2, y, best_fit_text)
-            y -= 14
-            utilization_text = f"{best_fit_volume_utilized_percentage:.2f}%"
-            utilization_width = c.stringWidth(utilization_text, "Helvetica-Bold", 12)
-            c.drawString((width - utilization_width) / 2, y, utilization_text)
-            y -= 8
+            y -= 18
         else:
             no_fit_text = "No suitable container found."
             no_fit_width = c.stringWidth(no_fit_text, "Helvetica-Bold", 12)
             c.setFillColor(colors.red)
             c.drawString((width - no_fit_width) / 2, y, no_fit_text)
-            y -= 8
+            y -= 18
 
         c.setFont("Helvetica", 12)
         c.setFillColor(colors.black)
 
-        y -= 10  # Adjust starting position for charts
+        # Adjust starting position for charts
+        y -= 10
 
         for index, carton in cartons_df.iterrows():
             col = index % 3
@@ -195,7 +192,6 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             img_y = y - row * row_height - row_height / 2
 
             img_height = row_height / 2  # Adjusted height for the image
-            needed_height = img_height + 5 * 14 + 10  # Space needed for image and description
 
             # Add the image if available
             if index < len(plot_images):
@@ -243,15 +239,14 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             text_y -= 14
 
             # Move to the next row if necessary
-            if col == 2:
-                y -= row_height
-                if y < margin:
-                    c.showPage()
-                    draw_page_border()
-                    y = height - margin
+            if col == 2 and row == 1:
+                c.showPage()
+                draw_page_border()
+                y = height - margin - 40
 
         c.save()
         return tmpfile.name
+
 
 
 
