@@ -249,19 +249,6 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         c.save()
         return tmpfile.name
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 def pack_items(carton, item_data, batch_size=200, num_batches=6):
     storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
     packer = Packer()
