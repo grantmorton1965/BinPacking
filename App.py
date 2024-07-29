@@ -232,12 +232,12 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
 
             c.setFont("Helvetica-Bold", 9)
-            c.drawString(img_x + 170, text_y, f"{total_items_fit}")
+            c.drawString(img_x + 5, text_y, f"{total_items_fit}")
             text_y -= 10
             c.setFont("Helvetica", 8)
             c.drawString(img_x, text_y, "Percentage of volume utilized: ")
             c.setFont("Helvetica-Bold", 8)
-            c.drawString(img_x + 170, text_y, f"{volume_utilized_percentage:.2f}%")
+            c.drawString(img_x + 5, text_y, f"{volume_utilized_percentage:.2f}%")
             text_y -= 10
 
             # Move to the next row if necessary
