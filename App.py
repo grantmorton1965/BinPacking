@@ -229,9 +229,14 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             c.setFillColor(colors.black)
             c.drawString(img_x, text_y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
             text_y -= 10
-            c.drawString(img_x, text_y, f"Total number of items fit: {total_items_fit}")
+            c.drawString(img_x, text_y, "Total number of items fit: ")
+            c.setFont("Helvetica-Bold", 8)
+            c.drawString(img_x + 130, text_y, f"{total_items_fit}")
             text_y -= 10
-            c.drawString(img_x, text_y, f"Percentage of volume utilized: {volume_utilized_percentage:.2f}%")
+            c.setFont("Helvetica", 8)
+            c.drawString(img_x, text_y, "Percentage of volume utilized: ")
+            c.setFont("Helvetica-Bold", 8)
+            c.drawString(img_x + 130, text_y, f"{volume_utilized_percentage:.2f}%")
             text_y -= 10
 
             # Move to the next row if necessary
