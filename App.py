@@ -187,6 +187,21 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
         current_y = y
 
         for index, carton in cartons_df.iterrows():
+            # Correct calculation of the number of items and volume utilized
+            packer = Packer()
+            storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
+            packer.add_bin(storage_unit)
+            batch_items = [Item(item_data["name"], item_data["length"], item_data["width"], item_data["height"], item_data["weight"]) for _ in range(100)]
+            for item in batch_items:
+                packer.add_item(item)
+            packer.pack()
+
+            total_items_fit = sum(len(b.items) for b in packer.bins)
+            storage_volume = float(carton['ID Length (in)'] * carton['ID Width (in)'] * carton['ID Height (in)'])
+            item_volume = float(item_data['length'] * item_data['width'] * item_data['height'])
+            total_volume_utilized = float(total_items_fit * item_volume)
+            volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
+
             col = index % 3
             row = index // 3
             img_x = margin + col * col_width
@@ -215,24 +230,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
             c.drawString(img_x, text_y, f"Package: {item_data['name']} ({item_data['length']} x {item_data['width']} x {item_data['height']})")
             text_y -= 10
             c.drawString(img_x, text_y, f"Total number of items fit: {total_items_fit}")
-
-            # Correct calculation of the number of items and volume utilized
-            packer = Packer()
-            storage_unit = Bin(carton['Description'], carton['ID Length (in)'], carton['ID Width (in)'], carton['ID Height (in)'], 1)
-            packer.add_bin(storage_unit)
-            batch_items = [Item(item_data["name"], item_data["length"], item_data["width"], item_data["height"], item_data["weight"]) for _ in range(100)]
-            for item in batch_items:
-                packer.add_item(item)
-            packer.pack()
-
-            total_items_fit = sum(len(b.items) for b in packer.bins)
-            storage_volume = float(carton['ID Length (in)'] * carton['ID Width (in)'] * carton['ID Height (in)'])
-            item_volume = float(item_data['length'] * item_data['width'] * item_data['height'])
-            total_volume_utilized = float(total_items_fit * item_volume)
-            volume_utilized_percentage = (total_volume_utilized / storage_volume) * 100
-
             text_y -= 10
-            c.setFont("Helvetica", 8)
             c.drawString(img_x, text_y, f"Percentage of volume utilized: {volume_utilized_percentage:.2f}%")
             text_y -= 10
 
@@ -246,6 +244,7 @@ def save_as_pdf(cartons_df, item_data, best_fit_container, best_fit_volume_utili
 
         c.save()
         return tmpfile.name
+
 
 
 
